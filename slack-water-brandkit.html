@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slack Water Brandkit</title>
+<meta name="description" content="Brand guidelines board for Slack Water, a tide-tables brand. Pure HTML, CSS and inline SVG. No JavaScript, no images.">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@500,700,800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ivory:#F3EEE3; --paper:#E8E1D1; --navy:#14213D; --navy-2:#0E182E;
+  --red:#C8102E; --fog:#B9B4A8; --canvas:#0B1120;
+  --display:"Cabinet Grotesk","Helvetica Neue",Arial,sans-serif;
+  --mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --gap:14px; --r:5px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--canvas);color:var(--ivory);font-family:var(--display);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+main{width:100%;max-width:1480px;margin:0 auto;padding:0 clamp(16px,3vw,40px) 64px;overflow-x:hidden}
+svg{display:block}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Navigation — minimal split */
+.nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:28px 0 36px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--fog)}
+.nav-brand{display:flex;align-items:center;gap:10px;color:var(--ivory);text-transform:none;letter-spacing:-.02em;font-family:var(--display);font-weight:800;font-size:18px}
+.nav-brand svg{width:26px;height:26px;--mk-bg:var(--ivory);--mk-water:var(--navy)}
+.nav-mid{text-align:center}
+.nav-end{text-align:right}
+.nav-end b{color:var(--red);font-weight:500}
+
+/* Board */
+.board{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:minmax(300px,auto);grid-auto-flow:dense;gap:var(--gap)}
+.panel{position:relative;border-radius:var(--r);overflow:hidden;padding:clamp(20px,2.4vw,32px);isolation:isolate}
+.panel .pg{position:absolute;right:16px;bottom:14px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;opacity:.55}
+.panel .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.65;margin:0}
+.ivory{background:var(--ivory);color:var(--navy)}
+.paper{background:var(--paper);color:var(--navy)}
+.navy{background:var(--navy);color:var(--ivory)}
+.red{background:var(--red);color:var(--ivory)}
+.s4{grid-column:span 4}.s3{grid-column:span 3}.s2{grid-column:span 2}.s6{grid-column:span 6}.r2{grid-row:span 2}
+
+/* 01 Cover */
+.cover{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:620px}
+.cover .mark{width:clamp(120px,14vw,188px);height:auto}
+.wordmark{font-weight:800;letter-spacing:-.055em;line-height:.9;font-size:clamp(3.4rem,8.2vw,7.6rem);margin:28px 0 14px;white-space:nowrap}
+.cover-sub{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.7;margin:0}
+.cover-curve{position:absolute;left:0;right:0;bottom:0;height:150px;z-index:-1}
+.cover-axis{position:absolute;left:clamp(20px,2.4vw,32px);right:clamp(20px,2.4vw,32px);bottom:14px;display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;opacity:.5;z-index:-1}
+.cover-axis span:last-child{visibility:hidden}
+
+/* 02 Construction */
+.construct{display:flex;flex-direction:column;gap:14px}
+.construct svg{width:100%;max-width:330px;margin:auto}
+.construct text{font-family:var(--mono);font-size:9.5px;fill:var(--navy);letter-spacing:.04em}
+
+/* 03 App */
+.app{display:flex;flex-direction:column;align-items:center;padding-bottom:0}
+.app-head{align-self:stretch;display:flex;justify-content:space-between;align-items:baseline}
+.phone{margin-top:22px;width:min(88%,300px);background:var(--navy-2);border-radius:38px 38px 0 0;padding:10px 10px 0;box-shadow:0 0 0 1px rgba(243,238,227,.14),0 30px 60px -20px rgba(0,0,0,.6);flex:1;display:flex}
+.screen{flex:1;background:var(--ivory);color:var(--navy);border-radius:30px 30px 0 0;padding:18px 16px 0;position:relative}
+.screen::before{content:"";position:absolute;top:8px;left:50%;width:70px;height:20px;margin-left:-35px;background:var(--navy-2);border-radius:12px}
+.scr-top{display:flex;align-items:center;gap:8px;margin-top:26px;font-weight:700;font-size:15px;letter-spacing:-.01em}
+.screen .scr-top svg{width:20px;height:20px;margin:0}
+.scr-top small{margin-left:auto;font-family:var(--mono);font-size:10px;font-weight:400;opacity:.6}
+.scr-k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:.6;margin:18px 0 2px}
+.scr-big{font-size:46px;font-weight:800;letter-spacing:-.04em;line-height:1}
+.scr-big + p{margin:4px 0 10px;font-family:var(--mono);font-size:11px}
+.scr-big + p b{color:var(--red);font-weight:500}
+.screen svg{width:100%;height:auto;margin:0 -2px}
+.rows{list-style:none;margin:10px 0 0;padding:0;font-family:var(--mono);font-size:11.5px}
+.rows li{display:grid;grid-template-columns:34px 1fr auto;padding:7px 0;border-top:1px solid rgba(20,33,61,.12)}
+.rows li.nx{color:var(--red)}
+
+/* 04 Voice / tagline */
+.voice{display:flex;flex-direction:column;justify-content:space-between;gap:28px}
+.tagline{font-weight:800;letter-spacing:-.045em;line-height:.98;font-size:clamp(2.4rem,4.6vw,4.4rem);margin:0;max-width:16ch}
+.pill{display:inline-block;width:1.9em;height:.78em;border:.07em solid currentColor;border-radius:999px;vertical-align:.05em;margin:0 .08em;position:relative;overflow:hidden}
+.pill svg{position:absolute;inset:0;width:100%;height:100%}
+.voice-foot{display:flex;justify-content:space-between;align-items:end;font-family:var(--mono);font-size:12px;opacity:.75;gap:16px}
+
+/* 05 Colour */
+.colour{display:flex;flex-direction:column;gap:20px}
+.ratio{display:flex;height:120px;border-radius:3px;overflow:hidden;border:1px solid rgba(20,33,61,.35)}
+.ratio i{display:block}
+.chips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.chip{border-top:1px solid rgba(20,33,61,.25);padding-top:10px}
+.chip b{display:block;font-weight:700;font-size:15px;letter-spacing:-.01em;margin-bottom:4px}
+.chip span{display:block;font-family:var(--mono);font-size:11px;line-height:1.55;opacity:.75}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px;box-shadow:inset 0 0 0 1px rgba(20,33,61,.25)}
+
+/* 06 Type */
+.type{display:flex;flex-direction:column;justify-content:space-between;gap:18px}
+.aa{font-weight:800;font-size:clamp(6rem,11vw,9.5rem);letter-spacing:-.06em;line-height:.8;margin:6px 0 0}
+.aa em{font-style:normal;color:var(--red)}
+.spec{font-family:var(--mono);font-size:12px;line-height:1.7;opacity:.85;margin:0}
+.ttable{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:clamp(15px,1.5vw,19px);border-top:1px solid rgba(243,238,227,.25);padding-top:12px;display:grid;grid-template-columns:auto auto 1fr;gap:4px 18px}
+.ttable span:nth-child(3n){text-align:right;opacity:.6}
+
+/* 07 Print — booklet */
+.print{display:grid;place-items:center;min-height:380px}
+.sheet{position:absolute;width:52%;aspect-ratio:3/4.1;background:var(--ivory);transform:translate(14%,-4%) rotate(6deg);border-radius:2px;box-shadow:0 18px 40px -16px rgba(0,0,0,.45);background-image:repeating-linear-gradient(to bottom,transparent 0 17px,rgba(20,33,61,.16) 17px 18px);background-position:0 46px;background-size:100% calc(100% - 66px);background-repeat:no-repeat}
+.booklet{position:relative;width:52%;aspect-ratio:3/4.1;background:var(--navy);color:var(--ivory);border-radius:2px 4px 4px 2px;transform:rotate(-5deg);box-shadow:0 26px 50px -18px rgba(0,0,0,.6),inset 9px 0 0 rgba(0,0,0,.22);padding:12% 11% 10% 16%;display:flex;flex-direction:column}
+.booklet::before{content:"";position:absolute;left:4%;top:5%;bottom:5%;border-left:1.5px dashed rgba(243,238,227,.4)}
+.booklet svg{width:30%;height:auto;--mk-bg:var(--ivory);--mk-water:var(--navy)}
+.booklet h3{font-weight:800;letter-spacing:-.04em;line-height:.9;font-size:clamp(1.3rem,2.2vw,2rem);margin:auto 0 8px}
+.booklet p{margin:0;font-family:var(--mono);font-size:clamp(8px,.75vw,10px);letter-spacing:.06em;text-transform:uppercase;opacity:.75;line-height:1.5}
+.booklet .yr{font-family:var(--mono);color:var(--red);background:var(--ivory);align-self:flex-start;padding:2px 6px;border-radius:2px;font-size:clamp(9px,.8vw,11px);margin-bottom:10px}
+
+/* 08 Image direction — engraved sea */
+.image{display:flex;flex-direction:column;gap:12px}
+.image svg{width:100%;height:auto;flex:1}
+.image .cap{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;opacity:.7}
+
+/* 09 System strip */
+.system{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:28px 40px;align-items:start;min-height:0}
+.ticker{grid-column:1/-1;margin:calc(-1*clamp(20px,2.4vw,32px)) calc(-1*clamp(20px,2.4vw,32px)) 0;background:var(--navy);color:var(--ivory);overflow:hidden;border-bottom:3px solid var(--red)}
+.track{display:flex;width:max-content;animation:tick 48s linear infinite}
+.track ul{display:flex;list-style:none;margin:0;padding:0}
+.track li{display:flex;align-items:baseline;gap:10px;padding:14px 26px;white-space:nowrap;font-size:15px;font-weight:700;letter-spacing:-.01em;border-right:1px solid rgba(243,238,227,.14)}
+.track li .num{font-weight:400;font-size:13px;opacity:.85}
+.track li .up{color:#F07A8C}
+@keyframes tick{to{transform:translateX(-50%)}}
+.ticker:hover .track,.ticker:focus-within .track{animation-play-state:paused}
+
+.uichips{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.ui{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:999px;font-family:var(--mono);font-size:12px;border:1px solid rgba(20,33,61,.28);background:var(--ivory);transition:transform .5s cubic-bezier(.2,.7,.2,1),background-color .3s}
+.ui:hover{transform:translateY(-2px)}
+.ui svg{width:14px;height:14px}
+.ui.hot{background:var(--red);color:var(--ivory);border-color:var(--red)}
+.ui.dark{background:var(--navy);color:var(--ivory);border-color:var(--navy)}
+.ui .pulse{width:7px;height:7px;border-radius:50%;background:currentColor}
+
+.search{margin-top:18px;display:flex;align-items:center;gap:12px;height:52px;padding:0 8px 0 18px;border-radius:12px;background:var(--ivory);box-shadow:inset 0 0 0 1px rgba(20,33,61,.2);font-size:16px;font-weight:500}
+.search svg{width:18px;height:18px;flex:none}
+.search span{flex:1;opacity:.5}
+.search kbd{font-family:var(--mono);font-size:11px;background:var(--navy);color:var(--ivory);padding:7px 10px;border-radius:7px}
+
+/* Voice carousel — radios, no JS */
+.carousel{position:relative}
+.carousel input{position:absolute;opacity:0;pointer-events:none}
+.viewport{overflow:hidden;margin-top:12px}
+.slides{display:flex;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.slides figure{flex:0 0 100%;margin:0;padding-right:8px}
+.slides blockquote{margin:0;font-weight:700;font-size:clamp(1.4rem,2.4vw,2.1rem);letter-spacing:-.03em;line-height:1.08}
+.slides blockquote .num{font-weight:500;font-size:.86em;letter-spacing:-.04em;color:var(--red)}
+.slides figcaption{margin-top:12px;font-family:var(--mono);font-size:11px;opacity:.65}
+#v2:checked ~ .viewport .slides{transform:translateX(-100%)}
+#v3:checked ~ .viewport .slides{transform:translateX(-200%)}
+.dots{display:flex;gap:8px;margin-top:18px}
+.dots label{width:34px;height:34px;display:grid;place-items:center;cursor:pointer;border-radius:50%}
+.dots label::before{content:"";width:22px;height:4px;border-radius:2px;background:rgba(20,33,61,.22);transition:background-color .3s,width .3s}
+#v1:checked ~ .dots label[for=v1]::before,#v2:checked ~ .dots label[for=v2]::before,#v3:checked ~ .dots label[for=v3]::before{background:var(--red);width:30px}
+#v1:focus-visible ~ .dots label[for=v1],#v2:focus-visible ~ .dots label[for=v2],#v3:focus-visible ~ .dots label[for=v3]{outline:2px solid var(--navy);outline-offset:2px}
+
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding-top:28px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--fog)}
+
+/* Paper grain */
+.grain{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50;mix-blend-mode:overlay;opacity:.32}
+
+/* Motion — CSS scroll-driven, progressive enhancement only */
+@media (prefers-reduced-motion:no-preference){
+  @supports (animation-timeline:view()){
+    .panel{animation:surface-in linear both,surface-out linear both;animation-timeline:view(),view();animation-range:entry 0% entry 80%,exit 30% exit 100%}
+    @keyframes surface-in{from{transform:scale(.94);opacity:.35}to{transform:none;opacity:1}}
+    @keyframes surface-out{from{filter:none}to{filter:brightness(.7);opacity:.5}}
+    .tagline .w{animation:reveal linear both;animation-timeline:view();animation-range:cover calc(8% + var(--i)*3%) cover calc(22% + var(--i)*3%)}
+    @keyframes reveal{from{opacity:.12}to{opacity:1}}
+  }
+}
+@media (prefers-reduced-motion:reduce){
+  .track{animation:none;width:auto}
+  .ticker{overflow-x:auto}
+  .track ul[aria-hidden]{display:none}
+  .slides,.ui{transition:none}
+}
+
+/* Responsive */
+@media (max-width:1100px){
+  .board{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .s4,.s6{grid-column:span 2}.s3,.s2{grid-column:span 1}
+  .voice,.colour,.type{grid-column:span 2}
+  .r2{grid-row:auto}
+  .cover{min-height:520px}
+}
+@media (max-width:700px){
+  .board{grid-template-columns:minmax(0,1fr)}
+  .s4,.s3,.s2,.s6,.voice,.colour,.type{grid-column:auto}
+  .nav{grid-template-columns:1fr auto}.nav-mid{display:none}
+  .cover{min-height:440px}
+  .wordmark{white-space:normal}
+  .chips{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .system{grid-template-columns:minmax(0,1fr)}
+  .print{min-height:360px}
+  .booklet,.sheet{width:58%}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <clipPath id="mk-clip"><circle cx="50" cy="50" r="48"/></clipPath>
+    <symbol id="mark" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="48" fill="var(--mk-bg,#14213D)"/>
+      <path clip-path="url(#mk-clip)" fill="var(--mk-water,#F3EEE3)" d="M0 50 C10 34 18 24 26 24 C34 24 42 34 50 50 C58 66 66 76 74 76 C82 76 90 66 100 50 L100 100 L0 100 Z"/>
+      <circle cx="50" cy="50" r="46.5" fill="none" stroke="var(--mk-bg,#14213D)" stroke-width="3"/>
+      <circle cx="26" cy="24" r="7" fill="var(--mk-dot,#C8102E)"/>
+    </symbol>
+    <symbol id="i-up" viewBox="0 0 16 16"><path d="M8 3 L13 11 H3 Z" fill="currentColor"/></symbol>
+    <symbol id="i-down" viewBox="0 0 16 16"><path d="M8 13 L3 5 H13 Z" fill="currentColor"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 16 16"><path d="M10.5 2.5a6 6 0 1 0 3 10.4A5 5 0 0 1 10.5 2.5Z" fill="currentColor"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 16 16"><circle cx="8" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 11.5 V15" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <filter id="grain-f" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/>
+      <feColorMatrix values=".33 .33 .33 0 0  .33 .33 .33 0 0  .33 .33 .33 0 0  0 0 0 0 1"/>
+    </filter>
+  </defs>
+</svg>
+
+<main>
+  <header class="nav">
+    <div class="nav-brand"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#mark"/></svg>slack water</div>
+    <div class="nav-mid">Brand guidelines &middot; Identity system</div>
+    <div class="nav-end">v1.0 &middot; Oct 2026 &middot; <b>Draft</b></div>
+  </header>
+
+  <div class="board">
+
+    <!-- 01 Cover -->
+    <section class="panel ivory s4 r2 cover" aria-label="Logo">
+      <svg class="mark" viewBox="0 0 100 100" role="img" aria-label="Slack Water mark: one tide cycle dividing a circle, with a red dot at high-water slack"><use href="#mark"/></svg>
+      <h1 class="wordmark">slack water</h1>
+      <p class="cover-sub">Tide tables &middot; Read the turn</p>
+      <svg class="cover-curve" viewBox="0 0 1000 120" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0.0,77.0 10.4,78.1 20.8,78.8 31.2,79.2 41.7,79.1 52.1,78.6 62.5,77.6 72.9,76.2 83.3,74.3 93.8,72.1 104.2,69.5 114.6,66.6 125.0,63.5 135.4,60.1 145.8,56.7 156.2,53.2 166.7,49.6 177.1,46.1 187.5,42.8 197.9,39.6 208.3,36.7 218.8,34.0 229.2,31.7 239.6,29.8 250.0,28.2 260.4,27.2 270.8,26.6 281.2,26.4 291.7,26.8 302.1,27.8 312.5,29.4 322.9,31.6 333.3,34.3 343.8,37.4 354.2,41.0 364.6,44.9 375.0,49.2 385.4,53.7 395.8,58.4 406.2,63.2 416.7,68.0 427.1,72.7 437.5,77.4 447.9,81.8 458.3,86.0 468.8,89.8 479.2,93.2 489.6,96.2 500.0,98.8 510.4,100.7 520.8,102.1 531.2,103.0 541.7,103.2 552.1,102.8 562.5,101.8 572.9,100.1 583.3,97.8 593.8,95.0 604.2,91.7 614.6,87.9 625.0,83.6 635.4,79.1 645.8,74.2 656.2,69.1 666.7,63.9 677.1,58.6 687.5,53.4 697.9,48.2 708.3,43.2 718.8,38.5 729.2,34.1 739.6,30.1 750.0,26.5 760.4,23.4 770.8,20.9 781.2,19.0 791.7,17.6 802.1,16.9 812.5,16.8 822.9,17.3 833.3,18.3 843.8,19.9 854.2,21.9 864.6,24.4 875.0,27.3 885.4,30.5 895.8,34.1 906.2,37.9 916.7,42.0 927.1,46.2 937.5,50.4 947.9,54.6 958.3,58.8 968.8,62.9 979.2,66.7 989.6,70.3 1000.0,73.5 L1000,120 L0,120 Z" fill="rgba(20,33,61,.05)"/>
+        <path d="M0.0,77.0 10.4,78.1 20.8,78.8 31.2,79.2 41.7,79.1 52.1,78.6 62.5,77.6 72.9,76.2 83.3,74.3 93.8,72.1 104.2,69.5 114.6,66.6 125.0,63.5 135.4,60.1 145.8,56.7 156.2,53.2 166.7,49.6 177.1,46.1 187.5,42.8 197.9,39.6 208.3,36.7 218.8,34.0 229.2,31.7 239.6,29.8 250.0,28.2 260.4,27.2 270.8,26.6 281.2,26.4 291.7,26.8 302.1,27.8 312.5,29.4 322.9,31.6 333.3,34.3 343.8,37.4 354.2,41.0 364.6,44.9 375.0,49.2 385.4,53.7 395.8,58.4 406.2,63.2 416.7,68.0 427.1,72.7 437.5,77.4 447.9,81.8 458.3,86.0 468.8,89.8 479.2,93.2 489.6,96.2 500.0,98.8 510.4,100.7 520.8,102.1 531.2,103.0 541.7,103.2 552.1,102.8 562.5,101.8 572.9,100.1 583.3,97.8 593.8,95.0 604.2,91.7 614.6,87.9 625.0,83.6 635.4,79.1 645.8,74.2 656.2,69.1 666.7,63.9 677.1,58.6 687.5,53.4 697.9,48.2 708.3,43.2 718.8,38.5 729.2,34.1 739.6,30.1 750.0,26.5 760.4,23.4 770.8,20.9 781.2,19.0 791.7,17.6 802.1,16.9 812.5,16.8 822.9,17.3 833.3,18.3 843.8,19.9 854.2,21.9 864.6,24.4 875.0,27.3 885.4,30.5 895.8,34.1 906.2,37.9 916.7,42.0 927.1,46.2 937.5,50.4 947.9,54.6 958.3,58.8 968.8,62.9 979.2,66.7 989.6,70.3 1000.0,73.5" fill="none" stroke="rgba(20,33,61,.28)" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
+      </svg>
+      <div class="cover-axis num" aria-hidden="true"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+      <span class="pg">01</span>
+    </section>
+
+    <!-- 02 Construction -->
+    <section class="panel paper s2 construct" aria-label="Logo construction">
+      <p class="lbl">Construction</p>
+      <svg viewBox="0 0 300 300" role="img" aria-label="Construction of the mark: a circle on a grid, one semidiurnal tide period, mean sea level line and the slack point">
+        <g stroke="rgba(20,33,61,.18)" stroke-width="1">
+          <path d="M30 0V300M90 0V300M150 0V300M210 0V300M270 0V300M0 30H300M0 90H300M0 150H300M0 210H300M0 270H300"/>
+        </g>
+        <circle cx="150" cy="150" r="120" fill="none" stroke="#14213D" stroke-width="1.4"/>
+        <circle cx="150" cy="150" r="120" fill="none" stroke="#14213D" stroke-width=".8" stroke-dasharray="2 4" transform="scale(.5) translate(150 150)"/>
+        <path d="M30 150 C55 110 75 85 90 85 C110 85 130 110 150 150 C170 190 190 215 210 215 C225 215 245 190 270 150" fill="none" stroke="#14213D" stroke-width="2.4"/>
+        <path d="M30 150H270" stroke="#C8102E" stroke-width="1" stroke-dasharray="5 4"/>
+        <path d="M90 85V150M210 150V215" stroke="#14213D" stroke-width=".8" stroke-dasharray="2 3"/>
+        <circle cx="90" cy="85" r="17" fill="#C8102E"/>
+        <circle cx="90" cy="85" r="24" fill="none" stroke="#C8102E" stroke-width=".8"/>
+        <path d="M30 288H270" stroke="#14213D" stroke-width=".8"/><path d="M30 283V293M270 283V293" stroke="#14213D" stroke-width=".8"/>
+        <text x="122" y="81">HW slack</text>
+        <text x="218" y="232">LW</text>
+        <text x="236" y="144">MSL</text>
+        <text x="106" y="282">T = 12 h 25 m</text>
+        <text x="12" y="20">h(t) = A cos &#969;t</text>
+      </svg>
+      <span class="pg">02</span>
+    </section>
+
+    <!-- 03 App -->
+    <section class="panel navy s2 app" aria-label="Digital application">
+      <div class="app-head"><p class="lbl">App</p></div>
+      <div class="phone">
+        <div class="screen">
+          <div class="scr-top"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#mark"/></svg>Point Reyes<small class="num">Mon 12 Oct</small></div>
+          <p class="scr-k">Next slack</p>
+          <div class="scr-big num">12:58</div>
+          <p class="num">Low &middot; 0.1 m &middot; <b>in 2 h 38 m</b></p>
+          <svg viewBox="0 0 240 96" aria-label="Tide curve for the day, now marker at 10:20" role="img">
+            <path d="M0.0,57.4 4.0,58.6 8.0,59.0 12.0,58.7 16.0,57.5 20.0,55.4 24.0,52.7 28.0,49.4 32.0,45.6 36.0,41.6 40.0,37.4 44.0,33.4 48.0,29.7 52.0,26.4 56.0,23.8 60.0,21.8 64.0,20.7 68.0,20.5 72.0,21.4 76.0,23.3 80.0,26.2 84.0,30.1 88.0,34.6 92.0,39.7 96.0,45.2 100.0,50.8 104.0,56.3 108.0,61.5 112.0,66.2 116.0,70.2 120.0,73.3 124.0,75.4 128.0,76.4 132.0,76.3 136.0,75.0 140.0,72.6 144.0,69.1 148.0,64.7 152.0,59.6 156.0,53.9 160.0,47.8 164.0,41.7 168.0,35.7 172.0,30.0 176.0,24.9 180.0,20.6 184.0,17.2 188.0,14.8 192.0,13.7 196.0,13.6 200.0,14.6 204.0,16.6 208.0,19.4 212.0,23.0 216.0,27.2 220.0,31.9 224.0,36.8 228.0,41.7 232.0,46.5 236.0,51.0 240.0,54.9 L240,90 L0,90 Z" fill="rgba(20,33,61,.08)"/>
+            <path d="M0.0,57.4 4.0,58.6 8.0,59.0 12.0,58.7 16.0,57.5 20.0,55.4 24.0,52.7 28.0,49.4 32.0,45.6 36.0,41.6 40.0,37.4 44.0,33.4 48.0,29.7 52.0,26.4 56.0,23.8 60.0,21.8 64.0,20.7 68.0,20.5 72.0,21.4 76.0,23.3 80.0,26.2 84.0,30.1 88.0,34.6 92.0,39.7 96.0,45.2 100.0,50.8 104.0,56.3 108.0,61.5 112.0,66.2 116.0,70.2 120.0,73.3 124.0,75.4 128.0,76.4 132.0,76.3 136.0,75.0 140.0,72.6 144.0,69.1 148.0,64.7 152.0,59.6 156.0,53.9 160.0,47.8 164.0,41.7 168.0,35.7 172.0,30.0 176.0,24.9 180.0,20.6 184.0,17.2 188.0,14.8 192.0,13.7 196.0,13.6 200.0,14.6 204.0,16.6 208.0,19.4 212.0,23.0 216.0,27.2 220.0,31.9 224.0,36.8 228.0,41.7 232.0,46.5 236.0,51.0 240.0,54.9" fill="none" stroke="#14213D" stroke-width="1.6"/>
+            <path d="M103.3 0V90" stroke="#C8102E" stroke-width="1.2"/>
+            <circle cx="103.3" cy="55.4" r="3.6" fill="#C8102E"/>
+            <g fill="#F3EEE3" stroke="#14213D" stroke-width="1.3">
+              <circle cx="8.5" cy="59.0" r="2.6"/><circle cx="67.0" cy="20.5" r="2.6"/><circle cx="129.7" cy="76.5" r="2.6"/><circle cx="194.0" cy="13.5" r="2.6"/>
+            </g>
+          </svg>
+          <ul class="rows">
+            <li><span>LW</span><span>00:51</span><span>0.6 m</span></li>
+            <li><span>HW</span><span>06:42</span><span>1.7 m</span></li>
+            <li class="nx"><span>LW</span><span>12:58</span><span>0.1 m</span></li>
+            <li><span>HW</span><span>19:24</span><span>1.9 m</span></li>
+          </ul>
+        </div>
+      </div>
+      <span class="pg">03</span>
+    </section>
+
+    <!-- 04 Voice -->
+    <section class="panel navy s3 voice" aria-label="Brand essence">
+      <h2 class="tagline"><span class="w" style="--i:0">Know</span> <span class="w" style="--i:1">the</span> <span class="w" style="--i:2">water</span> <span class="pill w" style="--i:3" aria-hidden="true"><svg viewBox="0 0 100 40" preserveAspectRatio="none"><path d="M0.0,25.0 3.3,25.6 6.7,25.0 10.0,23.1 13.3,20.2 16.7,17.0 20.0,13.9 23.3,11.5 26.7,10.3 30.0,10.5 33.3,12.5 36.7,15.8 40.0,20.1 43.3,24.5 46.7,28.5 50.0,31.3 53.3,32.6 56.7,32.0 60.0,29.6 63.3,25.8 66.7,21.1 70.0,16.3 73.3,12.0 76.7,8.9 80.0,7.5 83.3,7.8 86.7,9.8 90.0,12.9 93.3,16.7 96.7,20.6 100.0,24.0" fill="none" stroke="#C8102E" stroke-width="3" vector-effect="non-scaling-stroke"/></svg></span> <span class="w" style="--i:4">before</span> <span class="w" style="--i:5">you</span> <span class="w" style="--i:6">meet</span> <span class="w" style="--i:7">it.</span></h2>
+      <div class="voice-foot"><span>Calm. Exact. Never alarmist.</span><span class="pg" style="position:static">04</span></div>
+    </section>
+
+    <!-- 05 Colour -->
+    <section class="panel ivory s3 colour" aria-label="Colour system">
+      <p class="lbl">Colour &middot; by proportion of use</p>
+      <div class="ratio" role="img" aria-label="Usage ratio: ivory 55 percent, navy 30 percent, fog 10 percent, signal red 5 percent">
+        <i style="flex:55;background:var(--ivory)"></i><i style="flex:30;background:var(--navy)"></i><i style="flex:10;background:var(--fog)"></i><i style="flex:5;background:var(--red)"></i>
+      </div>
+      <div class="chips">
+        <div class="chip"><b><i class="dot" style="background:var(--ivory)"></i>Almanac</b><span class="num">#F3EEE3<br>Ground</span></div>
+        <div class="chip"><b><i class="dot" style="background:var(--navy)"></i>Sounding</b><span class="num">#14213D<br>Ink, type</span></div>
+        <div class="chip"><b><i class="dot" style="background:var(--fog)"></i>Fog line</b><span class="num">#B9B4A8<br>Rules, quiet</span></div>
+        <div class="chip"><b><i class="dot" style="background:var(--red)"></i>Signal</b><span class="num">#C8102E<br>Now, slack only</span></div>
+      </div>
+      <span class="pg">05</span>
+    </section>
+
+    <!-- 08 Image direction -->
+    <section class="panel ivory s2 image" aria-label="Image direction">
+      <p class="lbl">Image &middot; engraved, never photographed</p>
+      <svg viewBox="0 0 400 300" role="img" aria-label="Line-engraved seascape: a red sun half below the horizon over rows of wave lines">
+        <defs><clipPath id="sky"><rect width="400" height="150"/></clipPath></defs>
+        <g clip-path="url(#sky)">
+          <circle cx="262" cy="150" r="46" fill="#C8102E"/>
+          <g stroke="#F3EEE3" stroke-width="2.2"><path d="M200 112H330M200 124H330M200 136H330"/></g>
+        </g>
+        <path d="M0 150H400" stroke="#14213D" stroke-width="1.2"/>
+        <g fill="none" stroke="#14213D" stroke-linecap="round">
+<path d="M0,150.0 5,150.2 10,149.9 15,149.8 20,150.2 25,150.2 30,149.7 35,149.9 40,150.3 45,150.0 50,149.7 55,150.1 60,150.3 65,149.8 70,149.8 75,150.3 80,150.1 85,149.6 90,150.0 95,150.4 100,149.9 105,149.7 110,150.2 115,150.2 120,149.7 125,149.9 130,150.4 135,150.0 140,149.6 145,150.1 150,150.3 155,149.7 160,149.7 165,150.3 170,150.1 175,149.6 180,150.0 185,150.4 190,149.9 195,149.7 200,150.2 205,150.2 210,149.7 215,149.9 220,150.4 225,150.0 230,149.7 235,150.1 240,150.3 245,149.8 250,149.8 255,150.3 260,150.1 265,149.7 270,150.0 275,150.3 280,149.9 285,149.8 290,150.2 295,150.2 300,149.8 305,149.9 310,150.2 315,150.0 320,149.8 325,150.1 330,150.2 335,149.9 340,149.9 345,150.2 350,150.1 355,149.8 360,150.0 365,150.1 370,150.0 375,149.9 380,150.1 385,150.1 390,149.9 395,150.0 400,150.1" stroke-width="0.50"/>
+<path d="M0,152.0 5,151.5 10,151.2 15,151.8 20,152.0 25,151.4 30,151.2 35,151.9 40,151.9 45,151.2 50,151.3 55,152.0 60,151.8 65,151.2 70,151.5 75,152.0 80,151.6 85,151.1 90,151.6 95,152.0 100,151.5 105,151.2 110,151.8 115,152.0 120,151.4 125,151.3 130,151.9 135,151.9 140,151.3 145,151.4 150,151.9 155,151.7 160,151.2 165,151.5 170,151.9 175,151.6 180,151.3 185,151.7 190,151.9 195,151.5 200,151.3 205,151.7 210,151.8 215,151.4 220,151.4 225,151.8 230,151.7 235,151.4 240,151.5 245,151.8 250,151.7 255,151.4 260,151.6 265,151.8 270,151.6 275,151.4 280,151.6 285,151.7 290,151.5 295,151.5 300,151.7 305,151.7 310,151.5 315,151.5 320,151.7 325,151.7 330,151.5 335,151.6 340,151.7 345,151.6 350,151.5 355,151.6 360,151.7 365,151.6 370,151.5 375,151.6 380,151.7 385,151.6 390,151.5 395,151.7 400,151.7" stroke-width="0.51"/>
+<path d="M0,153.3 5,152.9 10,153.5 15,153.9 20,153.3 25,152.9 30,153.5 35,153.9 40,153.3 45,153.0 50,153.5 55,153.8 60,153.3 65,153.0 70,153.5 75,153.8 80,153.3 85,153.0 90,153.5 95,153.8 100,153.3 105,153.1 110,153.5 115,153.7 120,153.4 125,153.1 130,153.5 135,153.7 140,153.4 145,153.2 150,153.4 155,153.6 160,153.4 165,153.2 170,153.4 175,153.6 180,153.4 185,153.2 190,153.4 195,153.6 200,153.4 205,153.3 210,153.4 215,153.5 220,153.4 225,153.3 230,153.4 235,153.5 240,153.4 245,153.3 250,153.4 255,153.5 260,153.4 265,153.3 270,153.4 275,153.5 280,153.4 285,153.3 290,153.4 295,153.5 300,153.4 305,153.3 310,153.4 315,153.5 320,153.4 325,153.3 330,153.4 335,153.6 340,153.4 345,153.2 350,153.4 355,153.6 360,153.4 365,153.2 370,153.4 375,153.6 380,153.4 385,153.2 390,153.4 395,153.7 400,153.4" stroke-width="0.52"/>
+<path d="M0,155.1 5,155.6 10,155.8 15,155.4 20,155.1 25,155.4 30,155.8 35,155.5 40,155.2 45,155.3 50,155.7 55,155.6 60,155.3 65,155.3 70,155.6 75,155.6 80,155.4 85,155.3 90,155.5 95,155.6 100,155.4 105,155.3 110,155.4 115,155.6 120,155.5 125,155.3 130,155.4 135,155.6 140,155.5 145,155.4 150,155.4 155,155.5 160,155.6 165,155.4 170,155.3 175,155.5 180,155.6 185,155.4 190,155.3 195,155.4 200,155.6 205,155.5 210,155.3 215,155.4 220,155.6 225,155.6 230,155.3 235,155.3 240,155.6 245,155.6 250,155.4 255,155.2 260,155.5 265,155.7 270,155.4 275,155.2 280,155.4 285,155.7 290,155.5 295,155.2 300,155.3 305,155.7 310,155.7 315,155.2 320,155.2 325,155.7 330,155.8 335,155.3 340,155.1 345,155.5 350,155.9 355,155.4 360,155.0 365,155.4 370,155.9 375,155.6 380,155.0 385,155.2 390,155.9 395,155.8 400,155.1" stroke-width="0.54"/>
+<path d="M0,157.9 5,157.9 10,157.7 15,157.6 20,157.7 25,157.9 30,157.8 35,157.6 40,157.6 45,157.8 50,157.9 55,157.8 60,157.6 65,157.7 70,157.9 75,157.8 80,157.7 85,157.6 90,157.8 95,157.9 100,157.8 105,157.6 110,157.7 115,157.9 120,157.9 125,157.7 130,157.6 135,157.8 140,158.0 145,157.8 150,157.5 155,157.7 160,158.0 165,158.0 170,157.6 175,157.5 180,157.8 185,158.1 190,157.8 195,157.4 200,157.6 205,158.0 210,158.1 215,157.6 220,157.4 225,157.8 230,158.2 235,157.9 240,157.3 245,157.5 250,158.1 255,158.2 260,157.6 265,157.2 270,157.8 275,158.3 280,158.0 285,157.3 290,157.4 295,158.1 300,158.3 305,157.6 310,157.1 315,157.7 320,158.4 325,158.0 330,157.2 335,157.3 340,158.1 345,158.4 350,157.6 355,157.1 360,157.6 365,158.4 370,158.1 375,157.2 380,157.2 385,158.1 390,158.4 395,157.7 400,157.1" stroke-width="0.56"/>
+<path d="M0,160.5 5,160.3 10,160.2 15,160.3 20,160.5 25,160.5 30,160.3 35,160.2 40,160.4 45,160.6 50,160.5 55,160.2 60,160.1 65,160.4 70,160.7 75,160.5 80,160.1 85,160.1 90,160.5 95,160.7 100,160.4 105,160.0 110,160.1 115,160.6 120,160.8 125,160.3 130,159.9 135,160.1 140,160.8 145,160.8 150,160.2 155,159.8 160,160.2 165,160.9 170,160.8 175,160.1 180,159.7 185,160.3 190,161.0 195,160.8 200,159.9 205,159.7 210,160.5 215,161.1 220,160.7 225,159.8 230,159.8 235,160.6 240,161.1 245,160.5 250,159.7 255,159.8 260,160.8 265,161.1 270,160.4 275,159.6 280,160.0 285,160.9 290,161.1 295,160.2 300,159.6 305,160.1 310,161.0 315,161.0 320,160.1 325,159.6 330,160.3 335,161.0 340,160.8 345,160.0 350,159.7 355,160.4 360,161.0 365,160.7 370,159.9 375,159.8 380,160.5 385,161.0 390,160.5 395,159.9 400,160.0" stroke-width="0.58"/>
+<path d="M0,163.0 5,162.9 10,163.3 15,163.8 20,163.6 25,163.0 30,162.8 35,163.2 40,163.8 45,163.8 50,163.1 55,162.7 60,163.0 65,163.8 70,163.9 75,163.3 80,162.6 85,162.9 90,163.7 95,164.1 100,163.5 105,162.6 110,162.7 115,163.6 120,164.1 125,163.7 130,162.7 135,162.5 140,163.4 145,164.1 150,163.9 155,162.9 160,162.5 165,163.2 170,164.1 175,164.0 180,163.0 185,162.4 190,163.0 195,163.9 200,164.1 205,163.3 210,162.5 215,162.8 220,163.8 225,164.2 230,163.5 235,162.6 240,162.7 245,163.6 250,164.1 255,163.6 260,162.8 265,162.6 270,163.4 275,164.0 280,163.7 285,162.9 290,162.6 295,163.2 300,163.9 305,163.8 310,163.1 315,162.7 320,163.1 325,163.7 330,163.8 335,163.3 340,162.8 345,163.0 350,163.6 355,163.8 360,163.4 365,163.0 370,163.0 375,163.4 380,163.7 385,163.5 390,163.1 395,163.0 400,163.3" stroke-width="0.60"/>
+<path d="M0,166.1 5,167.0 10,167.5 15,167.0 20,166.1 25,165.7 30,166.4 35,167.4 40,167.5 45,166.6 50,165.8 55,165.9 60,166.9 65,167.6 70,167.3 75,166.2 80,165.6 85,166.2 90,167.3 95,167.6 100,166.9 105,165.9 110,165.8 115,166.7 120,167.5 125,167.4 130,166.4 135,165.7 140,166.1 145,167.1 150,167.6 155,167.0 160,166.1 165,165.8 170,166.5 175,167.3 180,167.4 185,166.6 190,165.9 195,166.1 200,166.8 205,167.4 210,167.1 215,166.3 220,166.0 225,166.4 230,167.1 235,167.2 240,166.8 245,166.2 250,166.2 255,166.7 260,167.1 265,167.0 270,166.5 275,166.2 280,166.4 285,166.8 290,167.0 295,166.8 300,166.4 305,166.3 310,166.6 315,166.9 320,166.9 325,166.6 330,166.4 335,166.5 340,166.7 345,166.9 350,166.8 355,166.5 360,166.4 365,166.6 370,166.8 375,166.8 380,166.7 385,166.5 390,166.5 395,166.7 400,166.8" stroke-width="0.62"/>
+<path d="M0,171.4 5,171.4 10,170.4 15,169.5 20,169.4 25,170.3 30,171.3 35,171.4 40,170.5 45,169.5 50,169.5 55,170.3 60,171.2 65,171.3 70,170.5 75,169.7 80,169.5 85,170.3 90,171.1 95,171.2 100,170.6 105,169.8 110,169.6 115,170.2 120,171.0 125,171.1 130,170.6 135,169.9 140,169.8 145,170.2 150,170.9 155,171.0 160,170.6 165,170.0 170,169.9 175,170.3 180,170.7 185,170.9 190,170.6 195,170.1 200,170.0 205,170.3 210,170.6 215,170.8 220,170.5 225,170.2 230,170.1 235,170.3 240,170.6 245,170.7 250,170.5 255,170.3 260,170.2 265,170.3 270,170.5 275,170.6 280,170.5 285,170.3 290,170.2 295,170.3 300,170.5 305,170.6 310,170.5 315,170.3 320,170.2 325,170.3 330,170.5 335,170.7 340,170.6 345,170.3 350,170.1 355,170.2 360,170.6 365,170.8 370,170.6 375,170.3 380,170.0 385,170.1 390,170.6 395,170.9 400,170.7" stroke-width="0.65"/>
+<path d="M0,175.1 5,174.2 10,173.7 15,174.1 20,174.9 25,175.5 30,175.3 35,174.7 40,174.0 45,174.0 50,174.5 55,175.1 60,175.3 65,175.0 70,174.4 75,174.1 80,174.3 85,174.8 90,175.1 95,175.1 100,174.7 105,174.3 110,174.2 115,174.5 120,174.9 125,175.1 130,174.9 135,174.6 140,174.3 145,174.4 150,174.7 155,174.9 160,174.9 165,174.7 170,174.5 175,174.4 180,174.5 185,174.8 190,174.9 195,174.8 200,174.6 205,174.4 210,174.4 215,174.6 220,174.9 225,174.9 230,174.8 235,174.5 240,174.3 245,174.5 250,174.8 255,175.0 260,175.0 265,174.6 270,174.3 275,174.3 280,174.6 285,175.0 290,175.2 295,174.9 300,174.4 305,174.1 310,174.3 315,174.8 320,175.3 325,175.2 330,174.7 335,174.1 340,174.0 345,174.4 350,175.2 355,175.5 360,175.1 365,174.3 370,173.8 375,174.0 380,174.8 385,175.5 390,175.6 395,174.8 400,173.9" stroke-width="0.68"/>
+<path d="M0,178.9 5,179.0 10,179.4 15,179.8 20,179.9 25,179.7 30,179.3 35,179.1 40,179.1 45,179.4 50,179.7 55,179.8 60,179.7 65,179.4 70,179.2 75,179.2 80,179.4 85,179.6 90,179.8 95,179.7 100,179.5 105,179.2 110,179.2 115,179.3 120,179.6 125,179.8 130,179.7 135,179.5 140,179.2 145,179.1 150,179.3 155,179.6 160,179.9 165,179.9 170,179.6 175,179.2 180,179.0 185,179.1 190,179.6 195,180.0 200,180.0 205,179.7 210,179.1 215,178.8 220,179.0 225,179.5 230,180.1 235,180.2 240,179.8 245,179.1 250,178.6 255,178.7 260,179.4 265,180.2 270,180.5 275,180.0 280,179.1 285,178.4 290,178.5 295,179.3 300,180.2 305,180.7 310,180.2 315,179.2 320,178.3 325,178.3 330,179.1 335,180.2 340,180.8 345,180.5 350,179.3 355,178.3 360,178.1 365,178.9 370,180.1 375,180.9 380,180.6 385,179.5 390,178.4 395,178.0 400,178.7" stroke-width="0.72"/>
+<path d="M0,184.9 5,185.1 10,185.2 15,185.2 20,184.9 25,184.7 30,184.5 35,184.6 40,184.9 45,185.2 50,185.3 55,185.2 60,184.9 65,184.5 70,184.4 75,184.6 80,185.0 85,185.4 90,185.5 95,185.2 100,184.7 105,184.3 110,184.2 115,184.6 120,185.2 125,185.7 130,185.7 135,185.2 140,184.5 145,184.0 150,184.0 155,184.6 160,185.4 165,186.0 170,185.9 175,185.1 180,184.2 185,183.7 190,183.9 195,184.8 200,185.8 205,186.3 210,185.9 215,184.9 220,183.9 225,183.4 230,183.9 235,185.0 240,186.1 245,186.5 250,185.9 255,184.7 260,183.6 265,183.3 270,184.0 275,185.3 280,186.3 285,186.5 290,185.7 295,184.4 300,183.4 305,183.3 310,184.3 315,185.6 320,186.5 325,186.4 330,185.4 335,184.1 340,183.3 345,183.5 350,184.5 355,185.8 360,186.4 365,186.2 370,185.1 375,184.0 380,183.4 385,183.8 390,184.8 395,185.9 400,186.3" stroke-width="0.76"/>
+<path d="M0,191.8 5,191.6 10,191.1 15,190.6 20,190.2 25,190.3 30,190.8 35,191.4 40,192.0 45,192.0 50,191.6 55,190.8 60,190.1 65,189.8 70,190.2 75,191.1 80,192.0 85,192.4 90,192.1 95,191.3 100,190.2 105,189.6 110,189.7 115,190.5 120,191.7 125,192.5 130,192.6 135,191.9 140,190.7 145,189.6 150,189.3 155,189.8 160,191.0 165,192.3 170,192.9 175,192.5 180,191.4 185,190.1 190,189.2 195,189.3 200,190.3 205,191.7 210,192.7 215,192.9 220,192.1 225,190.7 230,189.6 235,189.2 240,189.7 245,191.0 250,192.2 255,192.8 260,192.5 265,191.4 270,190.2 275,189.4 280,189.5 285,190.4 290,191.6 295,192.4 300,192.6 305,191.9 310,190.9 315,189.9 320,189.6 325,190.0 330,190.9 335,191.9 340,192.3 345,192.1 350,191.4 355,190.5 360,190.0 365,190.0 370,190.6 375,191.3 380,191.9 385,192.0 390,191.6 395,191.0 400,190.4" stroke-width="0.80"/>
+<path d="M0,197.8 5,196.8 10,196.3 15,196.5 20,197.4 25,198.6 30,199.6 35,199.9 40,199.4 45,198.2 50,196.9 55,196.1 60,196.0 65,196.8 70,198.2 75,199.4 80,200.1 85,199.8 90,198.8 95,197.3 100,196.2 105,195.8 110,196.4 115,197.6 120,199.0 125,200.0 130,200.0 135,199.2 140,197.8 145,196.6 150,195.9 155,196.2 160,197.2 165,198.5 170,199.6 175,199.9 180,199.4 185,198.3 190,197.1 195,196.3 200,196.2 205,196.9 210,198.0 215,199.1 220,199.6 225,199.4 230,198.6 235,197.6 240,196.8 245,196.5 250,196.9 255,197.7 260,198.6 265,199.1 270,199.2 275,198.7 280,198.0 285,197.3 290,196.9 295,197.1 300,197.6 305,198.2 310,198.7 315,198.8 320,198.6 325,198.2 330,197.7 335,197.3 340,197.3 345,197.6 350,198.0 355,198.3 360,198.5 365,198.5 370,198.2 375,197.9 380,197.6 385,197.5 390,197.6 395,197.9 400,198.2" stroke-width="0.85"/>
+<path d="M0,203.4 5,204.2 10,205.5 15,207.0 20,208.0 25,208.2 30,207.6 35,206.3 40,204.9 45,203.8 50,203.4 55,204.0 60,205.1 65,206.5 70,207.6 75,208.1 80,207.7 85,206.6 90,205.3 95,204.2 100,203.7 105,204.0 110,204.9 115,206.1 120,207.1 125,207.6 130,207.5 135,206.8 140,205.7 145,204.8 150,204.3 155,204.3 160,204.9 165,205.7 170,206.6 175,207.1 180,207.1 185,206.7 190,206.0 195,205.3 200,204.8 205,204.7 210,205.0 215,205.6 220,206.2 225,206.6 230,206.7 235,206.5 240,206.1 245,205.6 250,205.2 255,205.1 260,205.3 265,205.6 270,205.9 275,206.2 280,206.4 285,206.3 290,206.1 295,205.8 300,205.5 305,205.3 310,205.4 315,205.5 320,205.8 325,206.1 330,206.3 335,206.3 340,206.1 345,205.9 350,205.5 355,205.3 360,205.2 365,205.4 370,205.7 375,206.1 380,206.4 385,206.5 390,206.4 395,206.0 400,205.5" stroke-width="0.91"/>
+<path d="M0,215.5 5,216.5 10,217.0 15,216.7 20,215.8 25,214.7 30,213.6 35,212.9 40,212.7 45,213.1 50,214.0 55,215.0 60,215.8 65,216.3 70,216.3 75,215.8 80,215.0 85,214.2 90,213.6 95,213.3 100,213.5 105,214.0 110,214.6 115,215.2 120,215.6 125,215.7 130,215.5 135,215.0 140,214.5 145,214.1 150,213.9 155,213.9 160,214.1 165,214.5 170,214.9 175,215.2 180,215.3 185,215.2 190,215.0 195,214.7 200,214.4 205,214.2 210,214.1 215,214.2 220,214.4 225,214.7 230,215.0 235,215.2 240,215.2 245,215.1 250,214.8 255,214.5 260,214.2 265,214.0 270,214.0 275,214.2 280,214.6 285,215.0 290,215.4 295,215.5 300,215.4 305,215.1 310,214.6 315,214.0 320,213.7 325,213.6 330,213.8 335,214.3 340,215.0 345,215.7 350,216.0 355,216.0 360,215.6 365,214.8 370,214.0 375,213.2 380,212.9 385,213.1 390,213.8 395,214.8 400,215.8" stroke-width="0.97"/>
+<path d="M0,226.0 5,225.5 10,224.8 15,224.1 20,223.6 25,223.5 30,223.6 35,223.9 40,224.4 45,225.0 50,225.4 55,225.6 60,225.5 65,225.3 70,225.0 75,224.6 80,224.2 85,224.0 90,224.0 95,224.1 100,224.4 105,224.7 110,225.0 115,225.2 120,225.3 125,225.2 130,225.0 135,224.8 140,224.4 145,224.2 150,224.0 155,224.0 160,224.2 165,224.5 170,224.8 175,225.2 180,225.5 185,225.5 190,225.4 195,225.1 200,224.6 205,224.1 210,223.7 215,223.5 220,223.6 225,224.0 230,224.6 235,225.3 240,225.8 245,226.1 250,226.1 255,225.7 260,225.0 265,224.2 270,223.4 275,222.9 280,222.8 285,223.2 290,224.0 295,225.0 300,226.0 305,226.7 310,227.0 315,226.6 320,225.8 325,224.6 330,223.4 335,222.5 340,222.0 345,222.2 350,223.1 355,224.3 360,225.7 365,226.9 370,227.5 375,227.5 380,226.7 385,225.4 390,223.9 395,222.6 400,221.8" stroke-width="1.05"/>
+<path d="M0,235.5 5,235.3 10,235.3 15,235.3 20,235.5 25,235.8 30,236.1 35,236.4 40,236.6 45,236.7 50,236.7 55,236.5 60,236.2 65,235.8 70,235.5 75,235.2 80,235.1 85,235.1 90,235.4 95,235.8 100,236.2 105,236.7 110,237.1 115,237.2 120,237.2 125,236.8 130,236.3 135,235.6 140,235.0 145,234.5 150,234.3 155,234.4 160,234.9 165,235.6 170,236.5 175,237.3 180,238.0 185,238.2 190,238.0 195,237.3 200,236.4 205,235.3 210,234.3 215,233.5 220,233.3 225,233.6 230,234.4 235,235.6 240,236.9 245,238.1 250,238.9 255,239.1 260,238.7 265,237.8 270,236.4 275,234.9 280,233.6 285,232.8 290,232.6 295,233.1 300,234.1 305,235.6 310,237.2 315,238.5 320,239.3 325,239.5 330,239.0 335,237.8 340,236.3 345,234.7 350,233.4 355,232.6 360,232.5 365,233.1 370,234.3 375,235.7 380,237.2 385,238.4 390,239.1 395,239.2 400,238.6" stroke-width="1.13"/>
+<path d="M0,247.9 5,248.3 10,248.8 15,249.3 20,249.8 25,250.2 30,250.3 35,250.2 40,249.9 45,249.3 50,248.6 55,247.8 60,247.1 65,246.7 70,246.6 75,246.8 80,247.4 85,248.3 90,249.3 95,250.3 100,251.1 105,251.5 110,251.5 115,251.0 120,250.2 125,249.0 130,247.7 135,246.6 140,245.7 145,245.4 150,245.6 155,246.3 160,247.5 165,248.9 170,250.3 175,251.6 180,252.3 185,252.6 190,252.1 195,251.2 200,249.8 205,248.2 210,246.7 215,245.5 220,244.8 225,244.8 230,245.5 235,246.6 240,248.2 245,249.8 250,251.2 255,252.3 260,252.7 265,252.5 270,251.7 275,250.4 280,248.9 285,247.4 290,246.1 295,245.3 300,245.1 305,245.5 310,246.4 315,247.6 320,249.0 325,250.3 330,251.3 335,251.9 340,251.9 345,251.4 350,250.5 355,249.4 360,248.2 365,247.2 370,246.5 375,246.2 380,246.3 385,246.8 390,247.6 395,248.5 400,249.4" stroke-width="1.22"/>
+<path d="M0,265.5 5,266.1 10,266.4 15,266.2 20,265.6 25,264.6 30,263.4 35,262.1 40,260.9 45,260.0 50,259.4 55,259.3 60,259.8 65,260.8 70,262.1 75,263.6 80,265.0 85,266.3 90,267.2 95,267.6 100,267.4 105,266.6 110,265.3 115,263.8 120,262.1 125,260.6 130,259.5 135,258.8 140,258.7 145,259.2 150,260.2 155,261.7 160,263.3 165,264.9 170,266.2 175,267.2 180,267.6 185,267.4 190,266.6 195,265.5 200,264.0 205,262.5 210,261.1 215,260.1 220,259.4 225,259.3 230,259.7 235,260.6 240,261.7 245,263.0 250,264.3 255,265.3 260,266.0 265,266.4 270,266.2 275,265.7 280,264.9 285,263.9 290,262.9 295,262.0 300,261.3 305,260.9 310,260.8 315,261.1 320,261.6 325,262.2 330,263.0 335,263.7 340,264.3 345,264.7 350,264.8 355,264.8 360,264.5 365,264.1 370,263.7 375,263.2 380,262.7 385,262.4 390,262.1 395,262.1 400,262.2" stroke-width="1.33"/>
+<path d="M0,282.1 5,280.7 10,279.0 15,277.4 20,276.0 25,275.0 30,274.4 35,274.4 40,275.0 45,276.0 50,277.4 55,279.1 60,280.7 65,282.3 70,283.5 75,284.2 80,284.5 85,284.2 90,283.4 95,282.3 100,280.8 105,279.3 110,277.8 115,276.5 120,275.6 125,275.2 130,275.2 135,275.7 140,276.6 145,277.7 150,279.0 155,280.3 160,281.4 165,282.3 170,282.8 175,283.0 180,282.8 185,282.2 190,281.4 195,280.5 200,279.5 205,278.6 210,277.8 215,277.3 220,277.1 225,277.1 230,277.4 235,277.9 240,278.5 245,279.1 250,279.8 255,280.4 260,280.8 265,281.1 270,281.1 275,281.0 280,280.8 285,280.4 290,280.0 295,279.6 300,279.2 305,278.8 310,278.6 315,278.4 320,278.4 325,278.5 330,278.7 335,279.0 340,279.3 345,279.6 350,279.9 355,280.2 360,280.4 365,280.6 370,280.6 375,280.5 380,280.3 385,280.0 390,279.6 395,279.2 400,278.8" stroke-width="1.45"/>
+<path d="M0,293.0 5,292.6 10,292.7 15,293.3 20,294.2 25,295.4 30,296.8 35,298.2 40,299.6 45,300.8 50,301.6 55,302.2 60,302.3 65,302.0 70,301.5 75,300.6 80,299.6 85,298.5 90,297.4 95,296.4 100,295.6 105,295.1 110,294.9 115,294.9 120,295.2 125,295.7 130,296.4 135,297.1 140,297.8 145,298.5 150,299.1 155,299.6 160,299.8 165,299.9 170,299.8 175,299.6 180,299.2 185,298.8 190,298.3 195,297.9 200,297.5 205,297.1 210,296.9 215,296.7 220,296.7 225,296.8 230,296.9 235,297.2 240,297.4 245,297.8 250,298.1 255,298.5 260,298.7 265,299.0 270,299.1 275,299.2 280,299.2 285,299.0 290,298.8 295,298.4 300,298.0 305,297.6 310,297.1 315,296.7 320,296.4 325,296.1 330,296.0 335,296.1 340,296.4 345,296.8 350,297.4 355,298.1 360,298.8 365,299.5 370,300.2 375,300.7 380,300.9 385,301.0 390,300.7 395,300.2 400,299.5" stroke-width="1.58"/>
+        </g>
+      </svg>
+      <div class="cap"><span>Line weight grows toward shore</span><span class="pg" style="position:static">08</span></div>
+    </section>
+
+    <!-- 07 Print -->
+    <section class="panel red s2 print" aria-label="Print application: pocket tide booklet">
+      <div class="sheet" aria-hidden="true"></div>
+      <div class="booklet">
+        <span class="yr num">2027</span>
+        <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#mark"/></svg>
+        <h3>Tide<br>Tables</h3>
+        <p>Point Reyes &mdash; Bodega Bay<br>Heights in metres &middot; PST</p>
+      </div>
+      <span class="pg">07</span>
+    </section>
+
+    <!-- 06 Type -->
+    <section class="panel navy s2 type" aria-label="Typography">
+      <p class="lbl">Type</p>
+      <p class="aa">A<em>a</em></p>
+      <p class="spec">Cabinet Grotesk 800 / 500 &mdash; display, voice<br>Geist Mono 400 &mdash; every number, tabular</p>
+      <div class="ttable" aria-label="Tabular numerals sample">
+        <span>HW</span><span>06:42</span><span>1.7 m</span>
+        <span>LW</span><span>12:58</span><span>0.1 m</span>
+        <span>HW</span><span>19:24</span><span>1.9 m</span>
+      </div>
+      <span class="pg">06</span>
+    </section>
+
+    <!-- 09 System -->
+    <section class="panel paper s6 system" aria-label="System details">
+      <div class="ticker" tabindex="0" aria-label="Station ticker, illustrative times">
+        <div class="track">
+          <ul>
+            <li>Point Reyes <span class="num"><svg width="10" height="10" style="display:inline" aria-hidden="true"><use href="#i-down"/></svg> LW 12:58 0.1 m</span></li>
+            <li>Bodega Bay <span class="num up"><svg width="10" height="10" style="display:inline" aria-hidden="true"><use href="#i-up"/></svg> HW 19:31 1.9 m</span></li>
+            <li>Golden Gate <span class="num"><svg width="10" height="10" style="display:inline" aria-hidden="true"><use href="#i-down"/></svg> LW 13:22 0.0 m</span></li>
+            <li>Half Moon Bay <span class="num up"><svg width="10" height="10" style="display:inline" aria-hidden="true"><use href="#i-up"/></svg> HW 19:12 1.8 m</span></li>
+            <li>Santa Cruz <span class="num"><svg width="10" height="10" style="display:inline" aria-hidden="true"><use href="#i-down"/></svg> LW 12:41 0.2 m</span></li>
+            <li>Monterey <span class="num up"><svg width="10" height="10" style="display:inline" aria-hidden="true"><use href="#i-up"/></svg> HW 19:05 1.8 m</span></li>
+          </ul>
+          <ul aria-hidden="true">
+            <li>Point Reyes <span class="num"><svg width="10" height="10" style="display:inline"><use href="#i-down"/></svg> LW 12:58 0.1 m</span></li>
+            <li>Bodega Bay <span class="num up"><svg width="10" height="10" style="display:inline"><use href="#i-up"/></svg> HW 19:31 1.9 m</span></li>
+            <li>Golden Gate <span class="num"><svg width="10" height="10" style="display:inline"><use href="#i-down"/></svg> LW 13:22 0.0 m</span></li>
+            <li>Half Moon Bay <span class="num up"><svg width="10" height="10" style="display:inline"><use href="#i-up"/></svg> HW 19:12 1.8 m</span></li>
+            <li>Santa Cruz <span class="num"><svg width="10" height="10" style="display:inline"><use href="#i-down"/></svg> LW 12:41 0.2 m</span></li>
+            <li>Monterey <span class="num up"><svg width="10" height="10" style="display:inline"><use href="#i-up"/></svg> HW 19:05 1.8 m</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div>
+        <p class="lbl">Components</p>
+        <div class="uichips">
+          <span class="ui hot"><i class="pulse"></i>Slack in 14 min</span>
+          <span class="ui"><svg aria-hidden="true"><use href="#i-up"/></svg>High 06:42</span>
+          <span class="ui"><svg aria-hidden="true"><use href="#i-down"/></svg>Low 12:58</span>
+          <span class="ui dark"><svg aria-hidden="true"><use href="#i-moon"/></svg>Spring tide</span>
+        </div>
+        <div class="search"><svg aria-hidden="true"><use href="#i-pin"/></svg><span>Find a station or harbour</span><kbd>/</kbd></div>
+      </div>
+
+      <div class="carousel">
+        <p class="lbl">Voice &middot; how we write</p>
+        <input type="radio" name="voice" id="v1" checked aria-label="Voice example 1">
+        <input type="radio" name="voice" id="v2" aria-label="Voice example 2">
+        <input type="radio" name="voice" id="v3" aria-label="Voice example 3">
+        <div class="viewport">
+          <div class="slides">
+            <figure><blockquote>High water <span class="num">06:42</span>. Plenty of time for coffee.</blockquote><figcaption>Morning notification</figcaption></figure>
+            <figure><blockquote>Slack in <span class="num">14</span> minutes. Cast off now.</blockquote><figcaption>Departure alert</figcaption></figure>
+            <figure><blockquote>Spring tide tonight. Mind the lower moorings.</blockquote><figcaption>Weekly brief</figcaption></figure>
+          </div>
+        </div>
+        <div class="dots"><label for="v1"><span class="sr">Example 1</span></label><label for="v2"><span class="sr">Example 2</span></label><label for="v3"><span class="sr">Example 3</span></label></div>
+      </div>
+      <span class="pg">09</span>
+    </section>
+  </div>
+
+  <footer class="foot">
+    <span>Slack Water &mdash; Brand guidelines 1.0</span>
+    <span>Illustrative tide data &middot; Not for navigation</span>
+    <span>HTML &middot; CSS &middot; SVG &middot; 0 images &middot; 0 scripts</span>
+  </footer>
+</main>
+
+<svg class="grain" aria-hidden="true" focusable="false"><rect width="100%" height="100%" filter="url(#grain-f)"/></svg>
+</body>
+</html>

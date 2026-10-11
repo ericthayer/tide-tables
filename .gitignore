@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# Claude Code local state (launch.json is shared and tracked)
+.claude/*
+!.claude/launch.json
+
+# Env and secrets
+.env
+.env.*
+
+# Dependencies and build output
+node_modules/
+dist/
+build/
