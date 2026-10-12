@@ -1,0 +1,8 @@
+[build]
+  publish = "."
+
+# Serve the brand board at the site root (no index.html in the repo).
+[[redirects]]
+  from = "/"
+  to = "/slack-water-brandkit.html"
+  status = 200
