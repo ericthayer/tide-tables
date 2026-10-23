@@ -38,3 +38,15 @@ await writeFile(swPath, sw);
 
 await copyFile(new URL('../../slack-water-brandkit.html', import.meta.url), new URL('../../dist/slack-water-brandkit.html', import.meta.url));
 console.log(`sw.js: ${precache.length} files precached, version ${version}`);
+
+// The inline theme script in index.html runs under a hash-based CSP; a stale hash would
+// silently block it, so fail the build when netlify.toml doesn't list the current one.
+const html = await readFile(join(appDir, 'index.html'), 'utf8');
+const csp = await readFile(new URL('../../netlify.toml', import.meta.url), 'utf8');
+for (const [, body] of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) {
+  const digest = `'sha256-${createHash('sha256').update(body).digest('base64')}'`;
+  if (!csp.includes(digest)) {
+    console.error(`netlify.toml script-src is missing ${digest} for the inline script in index.html`);
+    process.exit(1);
+  }
+}

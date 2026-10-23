@@ -1,6 +1,6 @@
 import iconsUrl from '../../../design/icons.svg?url';
-import { clockTime, isoLocal, metres, metresSpoken, turnWord } from '../domain/format';
-import type { TideEvent } from '../domain/types';
+import { clockTime, height, heightSpoken, isoLocal, turnWord } from '../domain/format';
+import type { TideEvent, Units } from '../domain/types';
 import { DataElement, h, s, sr } from './dom';
 
 export interface ListData {
@@ -10,6 +10,7 @@ export interface ListData {
   /** Turns before this instant are shown muted. */
   readonly now: number;
   readonly caption: string;
+  readonly units: Units;
 }
 
 const designIcon = (id: string): SVGSVGElement =>
@@ -17,7 +18,7 @@ const designIcon = (id: string): SVGSVGElement =>
 
 /** The day's high and low waters: the chart's text equivalent, as the design system's sw-table. */
 export class TideList extends DataElement<ListData> {
-  protected render({ events, nextAt, now, caption }: ListData): void {
+  protected render({ events, nextAt, now, caption, units }: ListData): void {
     if (events.length === 0) {
       this.replaceChildren(h('p', { class: 'body empty' }, 'No high or low water in the saved data for this day.'));
       return;
@@ -30,7 +31,7 @@ export class TideList extends DataElement<ListData> {
         { class: cls },
         h('th', { scope: 'row' }, h('span', { class: 'turn-type' }, designIcon(e.type === 'H' ? 'i-rising' : 'i-falling'), turnWord(e.type)), next ? sr(' (next turn)') : null),
         h('td', {}, h('time', { datetime: isoLocal(e) }, clockTime(e))),
-        h('td', {}, h('span', { 'aria-hidden': 'true' }, metres(e.height)), sr(metresSpoken(e.height))),
+        h('td', {}, h('span', { 'aria-hidden': 'true' }, height(e.height, units)), sr(heightSpoken(e.height, units))),
       );
     });
     this.replaceChildren(

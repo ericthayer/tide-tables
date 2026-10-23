@@ -1,4 +1,5 @@
-import type { DayKey, LoadState, Station } from '../domain/types';
+import type { Theme } from '../data/prefs';
+import type { DayKey, LoadState, Station, Units } from '../domain/types';
 
 export interface AppState {
   readonly station: Station;
@@ -8,6 +9,11 @@ export interface AppState {
   /** Clock used for "now"; ticks each minute. */
   readonly now: number;
   readonly recents: readonly Station[];
+  /** Station the app opens to, when the user has chosen one. */
+  readonly home: Station | undefined;
+  readonly saved: readonly Station[];
+  readonly units: Units;
+  readonly theme: Theme;
 }
 
 export type Listener = (state: AppState, prev: AppState) => void;

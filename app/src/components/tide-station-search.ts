@@ -11,7 +11,7 @@ const label = (st: Station): string => (st.state ? `${st.name}, ${st.state}` : s
 
 /**
  * Station picker: a modal <dialog> holding a WAI-ARIA 1.2 combobox with a
- * listbox popup, recent stations and an opt-in "Use my location".
+ * listbox popup, saved and recent stations, and an opt-in "Use my location".
  */
 export class TideStationSearch extends HTMLElement {
   #dialog!: HTMLDialogElement;
@@ -24,6 +24,8 @@ export class TideStationSearch extends HTMLElement {
   #opener: HTMLElement | null = null;
   #statusTimer: ReturnType<typeof setTimeout> | undefined;
   recents: readonly Station[] = [];
+  saved: readonly Station[] = [];
+  homeId: string | undefined;
 
   connectedCallback(): void {
     if (this.#dialog) return;
@@ -165,16 +167,28 @@ export class TideStationSearch extends HTMLElement {
   }
 
   #renderRecents(): void {
-    if (!this.recents.length) {
-      this.#recents.replaceChildren();
-      return;
-    }
-    const items = this.recents.map((st) => {
+    const savedIds = new Set(this.saved.map((s) => s.id));
+    const recents = this.recents.filter((s) => !savedIds.has(s.id));
+    const saved = this.saved.map((st) => {
+      const home = st.id === this.homeId;
+      const b = h(
+        'button',
+        { type: 'button', class: 'saved-btn' },
+        h('span', { class: 'body saved-name' }, home ? icon('i-anchor', 'sw-icon') : null, label(st)),
+        h('span', { class: 'caption saved-meta' }, home ? 'Home port' : st.id),
+      );
+      b.addEventListener('click', () => this.#choose(st));
+      return h('li', {}, b);
+    });
+    const chips = recents.map((st) => {
       const b = h('button', { type: 'button', class: 'sw-chip recent' }, label(st));
       b.addEventListener('click', () => this.#choose(st));
       return h('li', {}, b);
     });
-    this.#recents.replaceChildren(h('h3', { id: 'recents-h', class: 'label' }, 'Recent'), h('ul', { class: 'recent-list' }, ...items));
+    this.#recents.replaceChildren(
+      ...(saved.length ? [h('h3', { id: 'saved-h', class: 'label' }, 'Saved'), h('ul', { class: 'saved-list', 'aria-labelledby': 'saved-h' }, ...saved)] : []),
+      ...(chips.length ? [h('h3', { id: 'recents-h', class: 'label' }, 'Recent'), h('ul', { class: 'recent-list', 'aria-labelledby': 'recents-h' }, ...chips)] : []),
+    );
   }
 
   async #locate(): Promise<void> {

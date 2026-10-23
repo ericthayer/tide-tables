@@ -16,7 +16,7 @@ test('AC1: shows the next turn with local time, type, height and countdown', asy
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Point Reyes');
   const next = page.locator('tide-next');
   await expect(next.locator('time')).toHaveText(/^\d{2}:\d{2}$/);
-  await expect(next).toContainText(/(High|Low) · −?\d\.\d m · in (\d+ h )?\d+ m/);
+  await expect(next).toContainText(/(High|Low) · −?\d\.\d ft · in (\d+ h )?\d+ m/);
   // Same turn is highlighted in the table.
   const t = await next.locator('time').textContent();
   await expect(page.locator('tr.is-next time')).toHaveText(t!);
