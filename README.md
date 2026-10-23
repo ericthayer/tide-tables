@@ -34,6 +34,10 @@ Then visit <http://localhost:8765/slack-water-brandkit.html>.
 
 `app/` is the Slack Water tide-tables app: an installable PWA in vanilla TypeScript and Custom Elements, with no runtime dependencies. It reads NOAA tide predictions, works offline, and is built on the design system in `design/`. Why this stack: [ADR 0001](docs/adr/0001-app-platform-vanilla-ts-web-components-pwa.md). What it does: [PRD](docs/spec/PRD.md). How it fits together: [architecture](docs/spec/architecture.md).
 
+<p align="center"><img src="docs/media/slack-water-walkthrough.gif" width="320" alt="Click-through of Slack Water on a phone: Point Reyes opens on the next slack at 12:28, then shows Wednesday's tides, sets Point Reyes as home port, searches for and opens Monterey, returns to Point Reyes from the Saved list, and in Settings switches heights to metres and the colour mode to dark."></p>
+
+The click-through above was recorded with Playwright against the built app, using the same test data and clock as the end-to-end tests: Point Reyes, 3 November 2026 at 10:00.
+
 ```bash
 cd app
 npm ci
