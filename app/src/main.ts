@@ -1,4 +1,5 @@
-import './styles/tokens.css';
+import '../../design/tokens.css';
+import '../../design/components.css';
 import './styles/app.css';
 import { fetchTides, TideError } from './data/noaa';
 import { readPrefs, rememberStation } from './data/prefs';
@@ -20,6 +21,9 @@ import type { StationPickEvent, TideStationSearch } from './components/tide-stat
 
 const BASE = import.meta.env.BASE_URL;
 const DAYS = 7;
+/** Slack water: the window around a turn when the stream is (nearly) still. */
+const SLACK_MS = 20 * 60_000;
+let drawnFor = '';
 
 const $ = <T extends Element>(sel: string): T => {
   const el = document.querySelector<T>(sel);
@@ -68,6 +72,8 @@ async function load(station: Station): Promise<void> {
   try {
     const r = await fetchTides(station.id, Date.now(), fetch, ctrl.signal);
     if (ctrl.signal.aborted) return;
+    // Saved data that no longer reaches past now is as good as none.
+    if (r.stale && !nextTurn(r.events, Date.now())) throw new TideError('network', 'Saved tides have run out');
     store.set({ load: { status: 'ready', station, events: r.events, fetchedAt: r.fetchedAt, stale: r.stale }, now: Date.now() });
   } catch (err) {
     if (ctrl.signal.aborted) return;
@@ -116,14 +122,28 @@ function render(state: AppState, prev: AppState | undefined): void {
 
   ui.next.data = next ? { kind: 'ready', event: next, now } : { kind: 'none' };
   ui.days.data = { days, today, selected };
+  // The curve draws once per station load; day changes cross-fade instead.
+  const loadKey = `${station.id}|${ld.fetchedAt}`;
+  const draw = loadKey !== drawnFor;
+  drawnFor = loadKey;
+  const prevTurn = events.filter((e) => e.at <= now).at(-1);
+  const slack = [prevTurn, next].some((e) => e !== undefined && Math.abs(e.at - now) <= SLACK_MS);
+
   ui.chart.data = {
     events,
     day: selected,
     now: selected === today ? now : undefined,
     min: Math.min(...heights),
     max: Math.max(...heights),
+    draw,
+    slack,
   };
-  ui.list.data = { events: eventsForDay(events, selected), nextAt: next?.at };
+  ui.list.data = {
+    events: eventsForDay(events, selected),
+    nextAt: next?.at,
+    now,
+    caption: selected === today ? `Today, ${dayLongLabel(selected)}` : dayLongLabel(selected),
+  };
 
   ui.retry.hidden = true;
   ui.note.hidden = !ld.stale;
@@ -148,6 +168,8 @@ function selectStation(station: Station, push = true): void {
   void load(station);
 }
 
+// Make the first history entry explicit so Back always knows its station.
+history.replaceState(null, '', writeUrl(BASE, store.get().station.id, store.get().day));
 store.subscribe(render);
 render(store.get(), undefined);
 void load(store.get().station);

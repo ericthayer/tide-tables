@@ -35,7 +35,7 @@ export function icon(id: string, cls = 'ico'): SVGSVGElement {
 }
 
 /** Visually hidden text for screen readers. */
-export const sr = (text: string): HTMLSpanElement => h('span', { class: 'sr' }, text);
+export const sr = (text: string): HTMLSpanElement => h('span', { class: 'sw-sr' }, text);
 
 /**
  * Base class: data arrives via `data` setter; render is batched to one per frame.

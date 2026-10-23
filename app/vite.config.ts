@@ -2,6 +2,8 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   base: '/app/',
+  // The design system lives at the repo root (design/); the app imports it directly.
+  server: { fs: { allow: ['..'] } },
   build: {
     outDir: '../dist/app',
     emptyOutDir: true,

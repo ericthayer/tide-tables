@@ -14,11 +14,11 @@
     <link rel="icon" href="/icons/mark.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <link rel="preconnect" href="https://api.tidesandcurrents.noaa.gov" crossorigin />
-    <link rel="preload" href="/fonts/cabinet-grotesk-800.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/geist-mono-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="../design/fonts/CabinetGrotesk-Extrabold.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="../design/fonts/GeistMono-Latin.woff2" as="font" type="font/woff2" crossorigin />
     <script type="module" src="/src/main.ts"></script>
   </head>
-  <body>
+  <body class="body">
     <svg class="sprite" aria-hidden="true" focusable="false">
       <defs>
         <clipPath id="mk-clip"><circle cx="50" cy="50" r="48" /></clipPath>
@@ -39,42 +39,42 @@
     <a class="skip" href="#tides">Skip to tides</a>
 
     <header class="bar">
-      <p class="brand"><svg class="brand-mark" viewBox="0 0 100 100" aria-hidden="true"><use href="#mark" /></svg>Slack Water</p>
-      <button type="button" class="station-btn" id="station-trigger" aria-haspopup="dialog">
-        <svg aria-hidden="true"><use href="#i-search" /></svg><span>Change station</span>
+      <p class="brand title-3"><svg class="brand-mark" viewBox="0 0 100 100" aria-hidden="true"><use href="#mark" /></svg>Slack Water</p>
+      <button type="button" class="sw-button sw-button--outline station-btn" id="station-trigger" aria-haspopup="dialog">
+        <svg class="sw-icon" aria-hidden="true" focusable="false"><use href="#i-search" /></svg><span>Change station</span>
       </button>
     </header>
 
     <main id="tides" tabindex="-1">
       <section class="hero" aria-labelledby="station-name">
-        <h1 id="station-name" class="station-name">Point Reyes</h1>
-        <p class="station-meta num" id="station-meta">CA · NOAA 9415020</p>
-        <tide-next class="next" aria-busy="true">
-          <p class="lbl">Next slack</p>
-          <p class="next-time num">--:--</p>
-          <p class="next-line num">Loading tides…</p>
+        <h1 id="station-name" class="title-1 station-name">Point Reyes</h1>
+        <p class="caption station-meta" id="station-meta">CA · NOAA 9415020</p>
+        <tide-next class="sw-readout" aria-busy="true">
+          <p class="sw-readout__label label">Next slack</p>
+          <p class="sw-readout__time readout-xl">--:--</p>
+          <p class="sw-readout__detail data">Loading tides…</p>
         </tide-next>
       </section>
 
       <section class="day" aria-labelledby="day-h">
-        <h2 id="day-h" class="sr">Tides by day</h2>
+        <h2 id="day-h" class="sw-sr">Tides by day</h2>
         <tide-days></tide-days>
         <tide-chart></tide-chart>
         <tide-list></tide-list>
       </section>
 
       <div class="note" id="note" hidden>
-        <p id="note-text"></p>
-        <button type="button" class="btn" id="retry" hidden>Try again</button>
+        <p id="note-text" class="body-sm"></p>
+        <button type="button" class="sw-button sw-button--outline" id="retry" hidden>Try again</button>
       </div>
     </main>
 
-    <footer class="foot">
+    <footer class="foot caption">
       <p>Predictions from NOAA CO-OPS. Heights in metres above MLLW, times local to the station.</p>
       <p><strong>Not for navigation.</strong></p>
     </footer>
 
     <tide-station-search></tide-station-search>
-    <div class="sr" id="announcer" aria-live="polite" aria-atomic="true"></div>
+    <div class="sw-sr" id="announcer" aria-live="polite" aria-atomic="true"></div>
   </body>
 </html>

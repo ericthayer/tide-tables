@@ -29,32 +29,35 @@ export class TideStationSearch extends HTMLElement {
     this.#input = h('input', {
       id: 'station-q',
       type: 'search',
+      class: 'sw-field__input',
+      placeholder: 'Town, bay or station number',
       role: 'combobox',
       'aria-autocomplete': 'list',
       'aria-expanded': 'false',
       'aria-controls': 'station-results',
+      'aria-describedby': 'station-help',
       autocomplete: 'off',
       autocapitalize: 'off',
       spellcheck: 'false',
       enterkeyhint: 'search',
     });
     this.#list = h('ul', { id: 'station-results', role: 'listbox', class: 'results', 'aria-label': 'Stations', hidden: true });
-    this.#status = h('p', { class: 'search-status', role: 'status' });
-    this.#recents = h('section', { class: 'recents', 'aria-labelledby': 'recents-h' });
-    const close = h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Close' }, icon('i-close'));
-    const locate = h('button', { type: 'button', class: 'locate-btn' }, icon('i-pin'), 'Use my location');
+    this.#status = h('p', { class: 'sw-field__help', id: 'station-help', role: 'status' });
+    this.#recents = h('div', { class: 'recents' });
+    const close = h('button', { type: 'button', class: 'sw-button sw-button--quiet icon-btn', 'aria-label': 'Close' }, icon('i-close', 'sw-icon'));
+    const locate = h('button', { type: 'button', class: 'sw-button sw-button--outline locate-btn' }, icon('i-pin', 'sw-icon'), 'Use my location');
 
     this.#dialog = h(
       'dialog',
       { class: 'sheet', 'aria-labelledby': 'search-h' },
-      h('div', { class: 'sheet-head' }, h('h2', { id: 'search-h' }, 'Find a station'), close),
+      h('div', { class: 'sheet-head' }, h('h2', { id: 'search-h', class: 'title-2' }, 'Find a station'), close),
       h(
         'form',
-        { class: 'search', role: 'search' },
-        h('label', { for: 'station-q', class: 'lbl' }, 'Station or harbour'),
-        h('div', { class: 'search-field' }, icon('i-search'), this.#input),
+        { class: 'sw-field', role: 'search' },
+        h('label', { for: 'station-q', class: 'sw-field__label' }, 'Station or harbour'),
+        h('div', { class: 'sw-field__control' }, icon('i-search', 'sw-icon'), this.#input),
+        this.#status,
       ),
-      this.#status,
       this.#list,
       locate,
       this.#recents,
@@ -120,8 +123,8 @@ export class TideStationSearch extends HTMLElement {
         h(
           'li',
           { role: 'option', id: `opt-${i}`, 'data-i': i, 'aria-selected': 'false', class: 'option' },
-          h('span', { class: 'opt-name' }, label(st)),
-          h('span', { class: 'opt-id num' }, st.id),
+          h('span', { class: 'body opt-name' }, label(st)),
+          h('span', { class: 'caption opt-id' }, st.id),
         ),
       ),
     );
@@ -156,11 +159,11 @@ export class TideStationSearch extends HTMLElement {
       return;
     }
     const items = this.recents.map((st) => {
-      const b = h('button', { type: 'button', class: 'recent' }, label(st));
+      const b = h('button', { type: 'button', class: 'sw-chip recent' }, label(st));
       b.addEventListener('click', () => this.#choose(st));
       return h('li', {}, b);
     });
-    this.#recents.replaceChildren(h('h3', { id: 'recents-h', class: 'lbl' }, 'Recent'), h('ul', { class: 'recent-list' }, ...items));
+    this.#recents.replaceChildren(h('h3', { id: 'recents-h', class: 'label' }, 'Recent'), h('ul', { class: 'recent-list' }, ...items));
   }
 
   async #locate(): Promise<void> {

@@ -7,27 +7,28 @@ export type NextData =
   | { readonly kind: 'none' }
   | { readonly kind: 'ready'; readonly event: TideEvent; readonly now: number };
 
-/** Hero: the next turn of the tide, its height and a countdown. */
+/** Hero: the next turn of the tide, its height and a countdown (design system sw-readout). */
 export class TideNext extends DataElement<NextData> {
   protected render(d: NextData): void {
     this.setAttribute('aria-busy', String(d.kind === 'loading'));
+    const label = h('p', { class: 'sw-readout__label label' }, 'Next slack');
     if (d.kind !== 'ready') {
       this.replaceChildren(
-        h('p', { class: 'lbl' }, 'Next slack'),
-        h('p', { class: 'next-time num' }, '--:--'),
-        h('p', { class: 'next-line num' }, d.kind === 'loading' ? 'Loading tides…' : 'No upcoming turn in saved data.'),
+        label,
+        h('p', { class: 'sw-readout__time readout-xl' }, '--:--'),
+        h('p', { class: 'sw-readout__detail data' }, d.kind === 'loading' ? 'Loading tides…' : 'No upcoming turn in saved data.'),
       );
       return;
     }
     const { event: e, now } = d;
     const cd = countdownText(e.at - now);
     this.replaceChildren(
-      h('p', { class: 'lbl' }, 'Next slack'),
-      h('p', { class: 'next-time num' }, h('time', { datetime: isoLocal(e) }, clockTime(e))),
+      label,
+      h('p', { class: 'sw-readout__time readout-xl' }, h('time', { datetime: isoLocal(e) }, clockTime(e))),
       h(
         'p',
-        { class: 'next-line num' },
-        h('span', { 'aria-hidden': 'true' }, `${turnWord(e.type)} · ${metres(e.height)} · `, h('b', {}, cd.short)),
+        { class: 'sw-readout__detail data' },
+        h('span', { 'aria-hidden': 'true' }, `${turnWord(e.type)} · ${metres(e.height)} · `, h('span', { class: 'sw-readout__eta' }, cd.short)),
         sr(`${turnWord(e.type)} water, ${metresSpoken(e.height)}, ${cd.spoken}.`),
       ),
     );

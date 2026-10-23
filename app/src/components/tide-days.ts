@@ -33,13 +33,13 @@ export class TideDays extends DataElement<DaysData> {
       const opts = days.map((d) =>
         h(
           'label',
-          { class: 'day-opt' },
+          { class: 'sw-chip day-opt' },
           h('input', { type: 'radio', name: 'day', value: d, class: 'sr-input' }),
           h('span', { 'aria-hidden': 'true' }, d === today ? 'Today' : dayShortLabel(d)),
-          h('span', { class: 'sr' }, d === today ? `Today, ${dayLongLabel(d)}` : dayLongLabel(d)),
+          h('span', { class: 'sw-sr' }, d === today ? `Today, ${dayLongLabel(d)}` : dayLongLabel(d)),
         ),
       );
-      this.replaceChildren(h('fieldset', { class: 'days' }, h('legend', { class: 'sr' }, 'Choose a day'), ...opts));
+      this.replaceChildren(h('fieldset', { class: 'days' }, h('legend', { class: 'sw-sr' }, 'Choose a day'), ...opts));
     }
     for (const input of this.querySelectorAll<HTMLInputElement>('input[name="day"]')) {
       input.checked = input.value === selected;

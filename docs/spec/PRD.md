@@ -76,7 +76,7 @@ Push notifications and departure alerts, tidal currents (true slack of current),
 |---|---|
 | JS, gzipped, initial | ≤ 15 KB |
 | CSS, gzipped | ≤ 8 KB |
-| Station index (lazy) | ≤ 70 KB gzipped, not on the critical path (measured ~66 KB for 3,502 stations as compact tuples; little headroom, so no extra fields) |
+| Station index (lazy) | ≤ 70 KB brotli as served (measured 56 KB for 3,502 stations as compact tuples), not on the critical path |
 | LCP (Lighthouse mobile, simulated 4G, NOAA response mocked locally so CI is deterministic; one manual run against live NOAA recorded in the PR) | ≤ 1.8 s |
 | CLS | ≤ 0.02 |
 | TBT | ≤ 100 ms |
