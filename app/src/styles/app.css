@@ -538,6 +538,35 @@ tide-list {
   color: var(--ink-muted);
 }
 
+/* Station sheet: this station's Share and calendar actions */
+.current {
+  display: grid;
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--line);
+}
+.current-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.current-head .label,
+.current-name {
+  color: var(--ink-muted);
+}
+.current-name {
+  text-align: right;
+}
+.current-actions {
+  margin-top: var(--space-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.current-actions > .sw-button {
+  flex: 1 1 auto;
+}
+
 /* Settings sheet */
 .set-group {
   display: grid;
