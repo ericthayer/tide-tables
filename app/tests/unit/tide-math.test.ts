@@ -115,6 +115,18 @@ describe('days', () => {
   });
 });
 
+describe('days around a DST switch', () => {
+  // Fall back on 1 Nov 2026 at 02:00 PDT. The PST event is nearer to 00:30 PDT than the PDT one.
+  const fallBack: TideEvent[] = [ev('2026-10-31 20:00', 'H', 1.5, -420), ev('2026-11-01 03:00', 'L', 0.2, -480)];
+  it('uses the offset in force, not the nearest event, for the station-local day', () => {
+    expect(dayKeyAt(fallBack, Date.UTC(2026, 10, 1, 7, 30))).toBe('2026-11-01'); // 00:30 PDT
+    expect(dayKeyAt(fallBack, Date.UTC(2026, 10, 1, 6, 30))).toBe('2026-10-31'); // 23:30 PDT
+  });
+  it('puts station-local midnight at 00:00 PDT on the fall-back day', () => {
+    expect(dayBounds(fallBack, '2026-11-01').start).toBe(Date.UTC(2026, 10, 1, 7, 0));
+  });
+});
+
 describe('dayCurve', () => {
   it('samples the whole day and passes through each turn', () => {
     const pts = dayCurve(week, '2026-10-23', 15);

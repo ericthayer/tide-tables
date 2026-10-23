@@ -3,8 +3,12 @@ import type { TideErrorReason, TideEvent, TurnType } from '../domain/types';
 
 export const NOAA_API = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter';
 const HOUR = 3_600_000;
-/** Ten days: covers any device/station date skew plus a seven-day picker. */
-const RANGE_HOURS = 240;
+/**
+ * Eleven days from (UTC date of now − 48 h). lst_ldt windows start at station-local
+ * midnight, so for UTC+10 stations (Guam, Saipan) the overlap ends up to 10 h early;
+ * 240 h could stop short of the turn after day 7's midnight. 264 h per architecture.md.
+ */
+const RANGE_HOURS = 264;
 
 export type TimeBasis = 'gmt' | 'lst_ldt';
 

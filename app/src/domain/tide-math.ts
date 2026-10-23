@@ -34,13 +34,15 @@ function floorIndex(events: readonly TideEvent[], t: number): number {
   return found;
 }
 
-/** Station UTC offset (minutes) nearest to instant t. */
+/**
+ * Station UTC offset (minutes) in force at instant t: that of the last event at
+ * or before t (the first event before the data starts). US DST switches at 02:00,
+ * so this is exact at every local midnight; the nearest event can be on the far
+ * side of a switch and put the hour around midnight on the wrong day.
+ */
 export function offsetAt(events: readonly TideEvent[], t: number): number {
   if (events.length === 0) return 0;
-  const i = floorIndex(events, t);
-  const before = events[Math.max(i, 0)]!;
-  const after = events[Math.min(i + 1, events.length - 1)]!;
-  return Math.abs(t - before.at) <= Math.abs(after.at - t) ? before.offsetMin : after.offsetMin;
+  return events[Math.max(floorIndex(events, t), 0)]!.offsetMin;
 }
 
 /** Station-local day containing instant t. */

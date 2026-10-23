@@ -37,6 +37,7 @@ const ui = {
   days: $<TideDays>('tide-days'),
   chart: $<TideChart>('tide-chart'),
   list: $<TideList>('tide-list'),
+  day: $<HTMLElement>('section.day'),
   note: $<HTMLDivElement>('#note'),
   noteText: $<HTMLParagraphElement>('#note-text'),
   retry: $<HTMLButtonElement>('#retry'),
@@ -104,7 +105,9 @@ function render(state: AppState, prev: AppState | undefined): void {
     const isError = ld.status === 'error';
     ui.note.hidden = !isError;
     ui.retry.hidden = !isError;
+    // Never leave the previous station's curve and table under this station's name.
     if (isError) {
+      ui.day.hidden = true;
       ui.next.data = { kind: 'none' };
       ui.noteText.textContent = `Tides for ${station.name} ${ERROR_COPY[ld.reason]}`;
       if (prev?.load.status !== 'error') announce(ui.noteText.textContent);
@@ -145,6 +148,7 @@ function render(state: AppState, prev: AppState | undefined): void {
     caption: selected === today ? `Today, ${dayLongLabel(selected)}` : dayLongLabel(selected),
   };
 
+  ui.day.hidden = false;
   ui.retry.hidden = true;
   ui.note.hidden = !ld.stale;
   if (ld.stale) ui.noteText.textContent = `Showing saved tides from ${deviceClock(ld.fetchedAt)}. They’ll refresh when you’re back online.`;
@@ -213,6 +217,10 @@ function tick(): void {
 setTimeout(tick, 60_000 - (Date.now() % 60_000) + 50);
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') store.set({ now: Date.now() });
+});
+// Restored from the back/forward cache (and iOS PWA resume): visibilitychange may not fire.
+addEventListener('pageshow', (e) => {
+  if (e.persisted) store.set({ now: Date.now() });
 });
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {

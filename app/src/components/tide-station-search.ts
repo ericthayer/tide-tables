@@ -22,6 +22,7 @@ export class TideStationSearch extends HTMLElement {
   #results: Station[] = [];
   #active = -1;
   #opener: HTMLElement | null = null;
+  #statusTimer: ReturnType<typeof setTimeout> | undefined;
   recents: readonly Station[] = [];
 
   connectedCallback(): void {
@@ -86,20 +87,27 @@ export class TideStationSearch extends HTMLElement {
     this.#opener = opener;
     this.#input.value = '';
     this.#setResults([]);
-    this.#status.textContent = '';
+    this.#say('');
     this.#renderRecents();
     this.#dialog.showModal();
     this.#input.focus();
     void loadStations().catch(() => {
-      this.#status.textContent = 'Station list is unavailable offline. Recent stations still work.';
+      this.#say('Station list is unavailable offline. Recent stations still work.');
     });
+  }
+
+  /** Write the status line; `delay` debounces result counts so typing isn't narrated per keystroke. */
+  #say(text: string, delay = 0): void {
+    clearTimeout(this.#statusTimer);
+    if (delay) this.#statusTimer = setTimeout(() => (this.#status.textContent = text), delay);
+    else this.#status.textContent = text;
   }
 
   async #search(): Promise<void> {
     const q = this.#input.value;
     if (!q.trim()) {
       this.#setResults([]);
-      this.#status.textContent = '';
+      this.#say('');
       return;
     }
     try {
@@ -107,11 +115,14 @@ export class TideStationSearch extends HTMLElement {
       if (q !== this.#input.value) return; // stale keystroke
       const hits = searchStations(all, q, MAX_RESULTS);
       this.#setResults(hits);
-      this.#status.textContent = hits.length
-        ? `${hits.length}${hits.length === MAX_RESULTS ? '+' : ''} stations found. Use arrow keys to choose.`
-        : 'No stations match. Try a town, bay or NOAA station number.';
+      this.#say(
+        hits.length
+          ? `${hits.length}${hits.length === MAX_RESULTS ? '+' : ''} stations found. Use arrow keys to choose.`
+          : 'No stations match. Try a town, bay or NOAA station number.',
+        400,
+      );
     } catch {
-      this.#status.textContent = 'Station list is unavailable offline. Recent stations still work.';
+      this.#say('Station list is unavailable offline. Recent stations still work.');
     }
   }
 
@@ -168,10 +179,10 @@ export class TideStationSearch extends HTMLElement {
 
   async #locate(): Promise<void> {
     if (!('geolocation' in navigator)) {
-      this.#status.textContent = 'Location is not available on this device.';
+      this.#say('Location is not available on this device.');
       return;
     }
-    this.#status.textContent = 'Finding the nearest station…';
+    this.#say('Finding the nearest station…');
     try {
       const [pos, all] = await Promise.all([
         new Promise<GeolocationPosition>((resolve, reject) =>
@@ -182,7 +193,7 @@ export class TideStationSearch extends HTMLElement {
       const hit = nearestStation(all, pos.coords.latitude, pos.coords.longitude);
       if (hit) this.#choose(hit.station);
     } catch {
-      this.#status.textContent = 'Couldn’t get your location. Search by name instead.';
+      this.#say('Couldn’t get your location. Search by name instead.');
     }
   }
 

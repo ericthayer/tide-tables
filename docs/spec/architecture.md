@@ -16,12 +16,13 @@ app/
     build-stations.mjs       Regenerates public/stations.json from NOAA mdapi
                              (stations.json?type=tidepredictions, ~3,500 R+S stations) as
                              compact tuples [id, name, state, lat, lng] (3 dp): ~66 KB gz measured
-    sw-manifest.mjs          Post-build: injects precache list + cache version into dist/app/sw.js
+    postbuild.mjs            Post-build: injects precache list + cache version into dist/app/sw.js,
+                             copies the brand board into dist/
   src/
     main.ts                  Boot: register elements, read URL, wire store → views
     styles/
-      tokens.css             Design tokens (swap point for the design-system thread)
-      app.css                Layout, components, motion
+      app.css                Layout and app glue (tokens and sw- components come from
+                             ../design/tokens.css and ../design/components.css)
     domain/                  Pure TS. No DOM. Unit-tested.
       types.ts               TideEvent, Station, DayView, LoadState (discriminated union)
       tide-math.ts           Cosine interpolation, next turn, day slicing, countdown
@@ -69,9 +70,9 @@ URL (?station, ?day) ──► store ◄── prefs (localStorage)
 
 - One request pair per station per load: `product=predictions`, `interval=hilo`, `datum=MLLW`, `units=metric`, `format=json`, `application=slack-water`, once with `time_zone=gmt` (absolute instants) and once with `time_zone=lst_ldt` (station wall clock). hilo predictions allow ranges far beyond what we need (the 1-year cap applies to 6-min/hourly), so window size is not a constraint.
 - **`begin_date` is interpreted in the requested `time_zone`**, so the two responses cover *different* windows and do not line up by index (verified 2026-10-23: 9415020, `begin_date=20261031&range=216` returns 34 events for gmt and 35 for lst_ldt; gmt[i+1] ≙ lst_ldt[i]). Therefore:
-  - Window: gmt `begin_date` = UTC date of (now − 48 h), `range=264`. lst_ldt uses one day earlier and `range=312`, so it is a superset whatever the station offset (NOAA offsets span −11 to +13 h).
-  - Align, don't zip: find the offset `k` where `lst[k+i]` matches `gmt[i]` on `type` and the exact `v` string for every `i`; drop unmatched edge events. No unique `k` (or < 2 matched events) is a `MismatchError`.
-  - Validate coverage: the merged series must contain an event before station-local 00:00 of today and after 24:00 of day 7, else treat as error/partial.
+  - Window (as built): both requests use `begin_date` = UTC date of (now − 48 h) and `range=264`. The lst_ldt window is shifted by the station offset (−11 to +10 h for NOAA stations), so the overlap still starts more than a day before station-local today and ends past day 7.
+  - Align, don't zip: find the shift `k` (searched over −4…+4) where `lst[k+i]` matches `gmt[i]` on `type` and the exact `v` string for every overlapping `i`; keep the overlap only. Fewer than 2 matched events is a `TideError('bad-response')`.
+  - Coverage is not validated up front (not implemented). Days the data does not reach show "No high or low water in the saved data for this day"; stale data with no turn after now is shown as the AC8 error.
 - Each `TideEvent` is `{ at: number /* epoch ms */, local: string /* "YYYY-MM-DD HH:mm" */, type: 'H' | 'L', height: number }`. The UTC offset per event (`local − at`) gives station-local day boundaries without a timezone database, and handles DST transitions:
   - Station-local midnight for day D = `Date.UTC(D) − offset`, where `offset` is taken from the last event at or before that midnight (US DST switches at 02:00, never at midnight, so this is exact). Days are 23 h / 25 h on transition dates.
   - The repeated hour on fall-back day is ambiguous in `local` alone; `at` (gmt) disambiguates, so all ordering and countdowns use `at`, never `local`.
@@ -82,10 +83,10 @@ URL (?station, ?day) ──► store ◄── prefs (localStorage)
 
 ## Offline and caching
 
-- `sw.js` lives in `public/`, so Vite does not see hashed filenames. A post-build script (`scripts/sw-manifest.mjs`) reads Vite's `build.manifest` output and writes the precache list plus a content-hash cache version into `dist/app/sw.js`. Without this the precache list is wrong after every build.
+- `sw.js` lives in `public/`, so Vite does not see hashed filenames. A post-build script (`scripts/postbuild.mjs`) walks `dist/app/` and writes the precache list (everything except `sw.js`, `stations.json` and the icons) plus a content-hash cache version over all built files into `dist/app/sw.js`. Without this the precache list is wrong after every build.
 - `sw.js` precaches the shell (`index.html`, hashed JS/CSS, fonts, icons) under that versioned cache name; old caches are deleted on `activate`. Served from `/app/sw.js`, so its default scope is `/app/` (no `Service-Worker-Allowed` header needed). Registered with `{ scope: '/app/' }`; `/app` without the slash is outside scope, so Netlify must redirect `/app` → `/app/` (it does by default for directories; add an explicit 301 to be safe).
-- Navigations within scope (any `?station=…&day=…`) are answered with the precached `index.html` (`ignoreSearch`), network-first with a 3 s timeout so new deploys load.
-- NOAA requests: **network-first with a 4 s timeout, falling back to cache**, in a `tides-v1` cache capped at 20 entries. Predictions are deterministic, so freshness is not the issue; **coverage** is. The cache key is normalised to `station + time_zone` (strip `begin_date`/`range`), otherwise tomorrow's URL never matches yesterday's cached response and offline fails the next day. The SW stores a synthetic `x-sw-fetched-at` header on the cached copy; the page reads it to show "Saved tides from 14:02" and to set `offline: true`. If cached data no longer covers station-local today, show the AC8 error state with the saved time, not stale turns.
+- Navigations within scope (any `?station=…&day=…`) are answered **cache-first** with the precached `index.html`. New deploys arrive through the worker update: `sw.js` is served `no-cache`, a changed version installs, `skipWaiting()` + `clients.claim()`, and the next launch gets the new shell.
+- NOAA requests: **network-first with a 4 s timeout, falling back to cache**, in a `tides-v1` cache capped at 20 entries. Predictions are deterministic, so freshness is not the issue; **coverage** is. The cache key is normalised to `station + time_zone` (strip `begin_date`/`range`), otherwise tomorrow's URL never matches yesterday's cached response and offline fails the next day. The SW stores a synthetic `x-sw-fetched-at` header on the cached copy and adds `x-sw-stale: 1` when it serves that copy; the page reads them to show "Showing saved tides from 14:02" and to set `stale: true`. If saved data has no turn after now, the page shows the AC8 error state (without the saved time). The 4 s timeout applies only when a cached copy exists; a first load with no cache waits for the network.
 - Offline detection is by fetch failure/timeout, never `navigator.onLine` (unreliable, especially on iOS).
 - `stations.json`: cache-first in the **versioned shell cache** (so a deploy replaces it), fetched lazily, not precached.
 
@@ -103,7 +104,7 @@ Cabinet Grotesk (800, 500) and Geist Mono (400) self-hosted as WOFF2, Latin subs
 
 ## Build and deploy
 
-- `npm run build` (in `app/`) → `vite build` with `base: '/app/'`, outputs to `../dist/app/` with `emptyOutDir: true` (Vite refuses to empty an outDir outside its root otherwise) and `build.manifest: true`, then runs `scripts/sw-manifest.mjs`. A post-build step copies `slack-water-brandkit.html` into `../dist/` so the existing root redirect (`/` → `/slack-water-brandkit.html`, 200) keeps working; that redirect block stays unchanged in `netlify.toml`.
-- Netlify: `base` stays repo root, `command = "npm --prefix app ci && npm --prefix app run build"`, `publish = "dist"`, `[build.environment] NODE_VERSION = "22"`. `app/package-lock.json` must be committed (`npm ci` fails without it). Headers: `Cache-Control: public, max-age=31536000, immutable` for `/app/assets/*`; `no-cache` for `/app/sw.js`, `/app/*.html`, `/app/manifest.webmanifest` and `/app/stations.json`. Redirect `/app` → `/app/` (301).
+- `npm run build` (in `app/`) → `vite build` with `base: '/app/'`, outputs to `../dist/app/` with `emptyOutDir: true` (Vite refuses to empty an outDir outside its root otherwise) then runs `scripts/postbuild.mjs`, which also copies `slack-water-brandkit.html` into `../dist/` so the existing root redirect (`/` → `/slack-water-brandkit.html`, 200) keeps working; that redirect block stays unchanged in `netlify.toml`.
+- Netlify: `base` stays repo root, `command = "npm --prefix app ci && npm --prefix app run build"`, `publish = "dist"`, `[build.environment] NODE_VERSION = "22"`. `app/package-lock.json` must be committed (`npm ci` fails without it). Headers: `Cache-Control: public, max-age=31536000, immutable` for `/app/assets/*`; `no-cache` for `/app/sw.js` (everything else under `/app/` keeps Netlify's default `max-age=0, must-revalidate`). Redirect `/app` → `/app/` (301).
 - Preconnect to `https://api.tidesandcurrents.noaa.gov` in `index.html` and start the NOAA fetch from `main.ts` before defining elements: the LCP element (next-turn time) depends on that cross-origin request, so it is the critical path. The hero reserves its final box during loading so CLS stays ≈ 0.
 - CI quality gates (`npm run check`): `tsc --noEmit` strict, Vitest, Playwright e2e with axe, bundle size budget script.
