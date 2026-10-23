@@ -1,16 +1,24 @@
 // Fail the build if shipped JS/CSS or the lazy station index exceed the PRD §5 budgets.
+// First-load JS (what index.html loads or preloads) has 15 KB; each on-demand chunk has its own 5 KB.
 import { readdir, readFile } from 'node:fs/promises';
 import { brotliCompressSync, gzipSync } from 'node:zlib';
 
 const dist = new URL('../../dist/app/', import.meta.url);
 const KB = 1024;
+const gzip = (b) => gzipSync(b, { level: 9 }).length;
+const html = await readFile(new URL('index.html', dist), 'utf8');
+const firstLoad = new Set([...html.matchAll(/(?:src|href)="[^"]*assets\/([^"/]+\.js)"/g)].map((m) => m[1]));
+const assets = await readdir(new URL('assets/', dist));
+const lazy = assets.filter((f) => f.endsWith('.js') && !firstLoad.has(f));
 const budgets = [
-  { label: 'JS (gzip)', match: (f) => f.endsWith('.js'), dir: 'assets/', limit: 15 * KB, size: (b) => gzipSync(b, { level: 9 }).length },
-  { label: 'CSS (gzip)', match: (f) => f.endsWith('.css'), dir: 'assets/', limit: 8 * KB, size: (b) => gzipSync(b, { level: 9 }).length },
+  { label: 'First-load JS (gzip)', match: (f) => firstLoad.has(f), dir: 'assets/', limit: 15 * KB, size: gzip },
+  ...lazy.map((name) => ({ label: `Lazy chunk ${name} (gzip)`, match: (f) => f === name, dir: 'assets/', limit: 5 * KB, size: gzip })),
+  { label: 'CSS (gzip)', match: (f) => f.endsWith('.css'), dir: 'assets/', limit: 8 * KB, size: gzip },
   { label: 'Station index (brotli)', match: (f) => f === 'stations.json', dir: '', limit: 70 * KB, size: (b) => brotliCompressSync(b).length },
 ];
 
-let failed = false;
+let failed = firstLoad.size === 0;
+if (failed) console.log('✗ No first-load script found in index.html');
 for (const b of budgets) {
   const dir = new URL(b.dir, dist);
   let total = 0;
