@@ -9,8 +9,7 @@ export default defineConfig({
     emptyOutDir: true,
     target: 'es2022',
     cssMinify: true,
-    // No preload helper: the one lazy chunk (currents) has no CSS and its deps are all in the entry.
-    modulePreload: false,
+    modulePreload: { polyfill: false },
     assetsInlineLimit: 0,
   },
   test: {
