@@ -90,26 +90,28 @@ test('settings: a forced colour mode applies before first paint and survives rel
   await expect(page.locator('meta[name="theme-color"]').first()).toHaveAttribute('content', '#F3EEE3');
 });
 
-test('header holds the wordmark, Settings and Change station on one line at 390px', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('./');
-  await ready(page);
-  expect((await page.locator('.brand-name').boundingBox())!.width).toBeGreaterThan(50);
-  const [settings, station] = await Promise.all([
-    page.getByRole('button', { name: 'Settings' }).boundingBox(),
-    page.getByRole('button', { name: 'Change station' }).boundingBox(),
-  ]);
-  expect(settings!.x).toBeLessThan(station!.x);
-  expect(Math.round(station!.x + station!.width)).toBe(390 - 16);
-  expect(Math.abs(settings!.y + settings!.height / 2 - (station!.y + station!.height / 2))).toBeLessThan(1);
-});
-
-test('header keeps the mark but drops the wordmark when it cannot fit', async ({ page }) => {
-  await page.setViewportSize({ width: 375, height: 667 });
-  await page.goto('./');
-  await ready(page);
-  expect((await page.locator('.brand-name').boundingBox())!.width).toBeLessThanOrEqual(1);
-  await expect(page.locator('.brand')).toHaveText('Slack Water');
-  const station = (await page.getByRole('button', { name: 'Change station' }).boundingBox())!;
-  expect(Math.round(station.x + station.width)).toBe(375 - 16);
-});
+for (const width of [390, 320]) {
+  test(`header holds the wordmark and two matching icon buttons on one line at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 700 });
+    await page.goto('./');
+    await ready(page);
+    const brand = (await page.locator('.brand-name').boundingBox())!;
+    const [settings, station] = await Promise.all([
+      page.getByRole('button', { name: 'Settings' }).boundingBox(),
+      page.getByRole('button', { name: 'Change station' }).boundingBox(),
+    ]);
+    expect(brand.width).toBeGreaterThan(50);
+    expect(brand.x + brand.width).toBeLessThan(settings!.x);
+    expect(settings!.x).toBeLessThan(station!.x);
+    expect(Math.round(station!.x + station!.width)).toBe(width - 16);
+    for (const b of [settings!, station!]) {
+      expect(b.width).toBeGreaterThanOrEqual(44);
+      expect(b.height).toBeGreaterThanOrEqual(44);
+    }
+    expect(settings!.width).toBe(station!.width);
+    expect(Math.abs(settings!.y - station!.y)).toBeLessThan(1);
+    const bg = await page.getByRole('button', { name: 'Change station' }).evaluate((el) => getComputedStyle(el).backgroundColor);
+    expect(await page.getByRole('button', { name: 'Settings' }).evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(bg);
+    expect(bg).not.toBe(await page.evaluate(() => getComputedStyle(document.body).backgroundColor));
+  });
+}

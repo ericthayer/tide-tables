@@ -88,28 +88,20 @@ main,
   gap: var(--space-2);
   white-space: nowrap;
 }
-.bar {
-  container: bar / inline-size;
-}
 .bar-actions {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
+  gap: var(--space-2);
 }
-.bar-actions .icon-btn .sw-icon {
+/* Header actions: a matching pair of tonal icon buttons, one step off the page. */
+.bar-btn {
+  --icon-knock: var(--surface);
+  background: var(--surface);
+  color: var(--ink);
+}
+.bar-btn .sw-icon {
   width: 20px;
   height: 20px;
-}
-/* Below this the wordmark, Settings and Change station can't share one line; the mark stays. */
-@container bar (max-width: 353px) {
-  .brand-name {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
 }
 .brand-mark {
   width: 28px;
@@ -117,11 +109,6 @@ main,
   --mk-bg: var(--ink);
   --mk-water: var(--bg);
   --mk-dot: var(--signal);
-}
-.station-btn {
-  min-height: var(--size-touch);
-  padding-inline: var(--space-4);
-  font-size: 0.9375rem;
 }
 main {
   flex: 1;
@@ -461,6 +448,9 @@ tide-list {
     forced-color-adjust: none;
     background: Highlight;
     color: HighlightText;
+  }
+  .bar-btn {
+    border: 1px solid ButtonText;
   }
 }
 
