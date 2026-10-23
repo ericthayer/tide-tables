@@ -8,7 +8,7 @@ import { DEFAULT_STATION, loadStations } from './data/stations';
 import { dayLongLabel, deviceClock } from './domain/format';
 import { addDays, dayKeyAt, eventsForDay, nextTurn } from './domain/tide-math';
 import type { DayKey, Station, TideErrorReason } from './domain/types';
-import { createStore, readUrl, writeUrl, type AppState } from './state/store';
+import { createStore, readUrl, writeUrl, type AppState, type View } from './state/store';
 import './components/tide-next';
 import './components/tide-days';
 import './components/tide-chart';
@@ -21,6 +21,7 @@ import type { TideList } from './components/tide-list';
 import type { TideNext } from './components/tide-next';
 import type { StationPickEvent, TideStationSearch } from './components/tide-station-search';
 import type { SettingsChangeEvent, TideSettings } from './components/tide-settings';
+import type { MonthView } from './month/month-view';
 
 const BASE = import.meta.env.BASE_URL;
 const DAYS = 7;
@@ -51,6 +52,10 @@ const ui = {
   settingsTrigger: $<HTMLButtonElement>('#settings-trigger'),
   settings: $<TideSettings>('tide-settings'),
   footUnits: $<HTMLSpanElement>('#foot-units'),
+  monthLink: $<HTMLAnchorElement>('#month-link'),
+  bar: $<HTMLElement>('#today-bar'),
+  tides: $<HTMLElement>('#tides'),
+  skip: $<HTMLAnchorElement>('#skip'),
 };
 
 /** Resolve the start station: URL first, then home port, then the last one opened, then Point Reyes. */
@@ -111,6 +116,7 @@ function render(state: AppState, prev: AppState | undefined): void {
   ui.name.textContent = station.name;
   ui.home.setAttribute('aria-pressed', String(state.home?.id === station.id));
   ui.footUnits.textContent = units === 'ft' ? 'feet' : 'metres';
+  ui.monthLink.href = writeUrl(BASE, station.id, null, 'month');
   ui.meta.textContent = [station.state, `NOAA ${station.id}`].filter(Boolean).join(' · ');
   document.title = `${station.name} · Slack Water`;
 
@@ -189,11 +195,39 @@ function selectStation(station: Station, push = true): void {
   void load(station);
 }
 
+/** The month screen is its own lazily loaded chunk; today's screen never pays for it. */
+let month: MonthView | undefined;
+async function showView(view: View | undefined): Promise<void> {
+  if (view === 'month') {
+    month ??= (await import('./month/month-view')).createMonthView({
+      store,
+      today: [ui.bar, ui.tides],
+      skip: ui.skip,
+      todayHref: (st) => writeUrl(BASE, st.id, null),
+      onBack: () => {
+        // Came from today's screen: step back so history stays one entry deep.
+        if ((history.state as { fromToday?: boolean } | null)?.fromToday) history.back();
+        else {
+          history.replaceState(null, '', writeUrl(BASE, store.get().station.id, null));
+          void showView(undefined);
+        }
+      },
+      announce,
+    });
+    month.open();
+  } else if (month?.isOpen) {
+    month.close();
+    render(store.get(), undefined);
+    ui.monthLink.focus();
+  }
+}
+
 // Make the first history entry explicit so Back always knows its station.
-history.replaceState(null, '', writeUrl(BASE, store.get().station.id, store.get().day));
+history.replaceState(null, '', writeUrl(BASE, store.get().station.id, store.get().day, fromUrl.view));
 store.subscribe(render);
 render(store.get(), undefined);
 void load(store.get().station);
+if (fromUrl.view) void showView(fromUrl.view);
 
 // A station from a shared link: fill in its real name once the index is around.
 if (store.get().station.name.startsWith('Station ')) {
@@ -244,6 +278,12 @@ ui.settings.addEventListener('settings-change', (e) => {
 });
 ui.search.addEventListener('station-pick', (e) => selectStation((e as StationPickEvent).detail));
 ui.retry.addEventListener('click', () => void load(store.get().station));
+ui.monthLink.addEventListener('click', (e) => {
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+  e.preventDefault();
+  history.pushState({ fromToday: true }, '', ui.monthLink.href);
+  void showView('month');
+});
 addEventListener('popstate', () => {
   const u = readUrl(location.search);
   const cur = store.get();
@@ -252,6 +292,7 @@ addEventListener('popstate', () => {
     store.set({ station: st, day: u.day ?? null });
     void load(st);
   } else store.set({ day: u.day ?? null });
+  void showView(u.view);
 });
 
 // Minute tick, aligned to the minute; resync when the app returns to the foreground.

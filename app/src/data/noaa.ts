@@ -8,7 +8,9 @@ const HOUR = 3_600_000;
  * midnight, so for UTC+10 stations (Guam, Saipan) the overlap ends up to 10 h early;
  * 240 h could stop short of the turn after day 7's midnight. 264 h per architecture.md.
  */
-const RANGE_HOURS = 264;
+export const RANGE_HOURS = 264;
+/** Month view: today plus 29 days, with the same two-day lead and a day of slack each side. */
+export const MONTH_RANGE_HOURS = 34 * 24;
 
 export type TimeBasis = 'gmt' | 'lst_ldt';
 
@@ -34,12 +36,12 @@ export interface TideResult {
 }
 
 /** begin is "YYYYMMDD". */
-export function predictionsUrl(stationId: string, begin: string, basis: TimeBasis): string {
+export function predictionsUrl(stationId: string, begin: string, basis: TimeBasis, rangeHours = RANGE_HOURS): string {
   const p = new URLSearchParams({
     product: 'predictions',
     application: 'slack_water',
     begin_date: begin,
-    range: String(RANGE_HOURS),
+    range: String(rangeHours),
     datum: 'MLLW',
     station: stationId,
     time_zone: basis,
@@ -125,11 +127,12 @@ export async function fetchTides(
   now = Date.now(),
   fetchImpl: typeof fetch = fetch,
   signal?: AbortSignal,
+  rangeHours = RANGE_HOURS,
 ): Promise<TideResult> {
   const begin = windowStart(now);
   const [g, l] = await Promise.all([
-    getJson(predictionsUrl(stationId, begin, 'gmt'), fetchImpl, signal),
-    getJson(predictionsUrl(stationId, begin, 'lst_ldt'), fetchImpl, signal),
+    getJson(predictionsUrl(stationId, begin, 'gmt', rangeHours), fetchImpl, signal),
+    getJson(predictionsUrl(stationId, begin, 'lst_ldt', rangeHours), fetchImpl, signal),
   ]);
   const events = mergePairs(parsePredictions(g.body), parsePredictions(l.body));
   const stale = g.res.headers.get('x-sw-stale') === '1' || l.res.headers.get('x-sw-stale') === '1';

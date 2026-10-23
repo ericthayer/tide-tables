@@ -45,19 +45,24 @@ export function createStore(initial: AppState): Store {
 const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
 const ID_RE = /^[A-Za-z0-9]{5,12}$/;
 
-/** Read ?station=&day= defensively; anything malformed is ignored. */
-export function readUrl(search: string): { stationId?: string; day?: DayKey } {
+/** Screens other than today's. */
+export type View = 'month';
+
+/** Read ?station=&day=&view= defensively; anything malformed is ignored. */
+export function readUrl(search: string): { stationId?: string; day?: DayKey; view?: View } {
   const p = new URLSearchParams(search);
-  const out: { stationId?: string; day?: DayKey } = {};
+  const out: { stationId?: string; day?: DayKey; view?: View } = {};
   const id = p.get('station');
   const day = p.get('day');
   if (id && ID_RE.test(id)) out.stationId = id;
   if (day && DAY_RE.test(day)) out.day = day;
+  if (p.get('view') === 'month') out.view = 'month';
   return out;
 }
 
-export function writeUrl(base: string, stationId: string, day: DayKey | null): string {
+export function writeUrl(base: string, stationId: string, day: DayKey | null, view?: View): string {
   const p = new URLSearchParams({ station: stationId });
   if (day) p.set('day', day);
+  if (view) p.set('view', view);
   return `${base}?${p.toString()}`;
 }

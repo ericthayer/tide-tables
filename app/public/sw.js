@@ -3,11 +3,16 @@ const VERSION = '__VERSION__';
 const PRECACHE = __PRECACHE__;
 const SHELL = `shell-${VERSION}`;
 const TIDES = 'tides-v1';
+// The month view's 34-day responses live apart, so they never replace the week that
+// today's screen falls back to offline.
+const MONTH = 'tides-month-v1';
+const WEEK_RANGE_HOURS = 264;
 const NOAA = 'api.tidesandcurrents.noaa.gov';
 const SCOPE = new URL(self.registration.scope);
 const INDEX = new URL('index.html', SCOPE).href;
 const NETWORK_TIMEOUT_MS = 4000;
 const MAX_TIDE_ENTRIES = 20;
+const MAX_MONTH_ENTRIES = 6;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(SHELL).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
@@ -48,14 +53,17 @@ async function sameOrigin(req) {
   return res;
 }
 
+const isMonth = (url) => Number(url.searchParams.get('range')) > WEEK_RANGE_HOURS;
+
 /** One cache entry per station and time basis, so yesterday's data still serves offline today. */
 function tideKey(url) {
   const p = url.searchParams;
-  return new URL(`__tides/${p.get('station')}/${p.get('time_zone')}`, SCOPE).href;
+  return new URL(`${isMonth(url) ? '__month' : '__tides'}/${p.get('station')}/${p.get('time_zone')}`, SCOPE).href;
 }
 
 async function tides(req, url) {
-  const cache = await caches.open(TIDES);
+  const month = isMonth(url);
+  const cache = await caches.open(month ? MONTH : TIDES);
   const key = tideKey(url);
   const cached = await cache.match(key);
 
@@ -68,7 +76,7 @@ async function tides(req, url) {
       headers.set('x-sw-fetched-at', String(Date.now()));
       headers.set('access-control-expose-headers', 'x-sw-stale, x-sw-fetched-at');
       await cache.put(key, new Response(body, { status: 200, headers }));
-      await trim(cache);
+      await trim(cache, month ? MAX_MONTH_ENTRIES : MAX_TIDE_ENTRIES);
     }
     return res;
   });
@@ -88,7 +96,7 @@ async function tides(req, url) {
   }
 }
 
-async function trim(cache) {
+async function trim(cache, max) {
   const keys = await cache.keys();
-  for (const k of keys.slice(0, Math.max(0, keys.length - MAX_TIDE_ENTRIES))) await cache.delete(k);
+  for (const k of keys.slice(0, Math.max(0, keys.length - max))) await cache.delete(k);
 }
