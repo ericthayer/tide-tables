@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_PREFS, PREFS_KEY, readPrefs, rememberStation, setHome, setTheme, setUnits } from '../../src/data/prefs';
+import { DEFAULT_PREFS, PREFS_KEY, readPrefs, rememberStation, setDepth, setHome, setTheme, setUnits } from '../../src/data/prefs';
 import { rowsToStations } from '../../src/data/stations';
 import type { Station } from '../../src/domain/types';
 
@@ -66,6 +66,27 @@ describe('prefs v2', () => {
     expect(readPrefs(s)).toMatchObject({ units: 'm', theme: 'dark' });
     s.setItem(PREFS_KEY, JSON.stringify({ units: 'yards', theme: 'sepia', recents: [], saved: [] }));
     expect(readPrefs(s)).toMatchObject({ units: 'ft', theme: 'system' });
+  });
+});
+
+describe('depth windows', () => {
+  it('stores one depth per station, clears it, and drops malformed entries', () => {
+    const s = memory();
+    setDepth('9415020', { m: 0.6, dir: 'above' }, s);
+    setDepth('9413450', { m: 0.2, dir: 'below' }, s);
+    setDepth('9415020', { m: 0.7, dir: 'above' }, s);
+    expect(readPrefs(s).depths).toEqual([{ id: '9413450', m: 0.2, dir: 'below' }, { id: '9415020', m: 0.7, dir: 'above' }]);
+    expect(setDepth('9415020', null, s).depths).toEqual([{ id: '9413450', m: 0.2, dir: 'below' }]);
+    s.setItem(PREFS_KEY, JSON.stringify({ depths: [{ id: 'a', m: 'x', dir: 'above' }, { id: 'b', m: 1, dir: 'sideways' }, { m: 1, dir: 'above' }, { id: 'c', m: 1, dir: 'below' }] }));
+    expect(readPrefs(s).depths).toEqual([{ id: 'c', m: 1, dir: 'below' }]);
+  });
+  it('keeps the newest twenty stations, even with numeric ids', () => {
+    const s = memory();
+    for (let i = 25; i > 0; i--) setDepth(String(9410000 + i), { m: i, dir: 'above' }, s);
+    const ids = readPrefs(s).depths.map((d) => d.id);
+    expect(ids).toHaveLength(20);
+    expect(ids.at(-1)).toBe('9410001');
+    expect(ids).not.toContain('9410025');
   });
 });
 

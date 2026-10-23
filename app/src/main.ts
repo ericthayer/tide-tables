@@ -2,7 +2,7 @@ import '../../design/tokens.css';
 import '../../design/components.css';
 import './styles/app.css';
 import { fetchTides, TideError } from './data/noaa';
-import { readPrefs, rememberStation, setHome, setTheme, setUnits } from './data/prefs';
+import { readPrefs, rememberStation, setDepth, setHome, setTheme, setUnits } from './data/prefs';
 import { applyTheme } from './data/theme';
 import { DEFAULT_STATION, loadStations } from './data/stations';
 import { daylightText, dayLongLabel, deviceClock } from './domain/format';
@@ -24,6 +24,7 @@ import type { TideNext } from './components/tide-next';
 import type { StationPickEvent, TideStationSearch } from './components/tide-station-search';
 import type { SettingsChangeEvent, TideSettings } from './components/tide-settings';
 import type { MonthView } from './month/month-view';
+import type { DepthChangeEvent, DepthData, TideDepth } from './components/tide-depth';
 
 const BASE = import.meta.env.BASE_URL;
 const DAYS = 7;
@@ -58,7 +59,17 @@ const ui = {
   bar: $<HTMLElement>('#today-bar'),
   tides: $<HTMLElement>('#tides'),
   skip: $<HTMLAnchorElement>('#skip'),
+  depth: $<TideDepth>('tide-depth'),
 };
+
+/** The depth window is code most people never run: fetch it on first use or when a station has one. */
+let depthData: DepthData | undefined;
+function loadDepth(edit = false): void {
+  import('./components/tide-depth').then(() => {
+    if (depthData) ui.depth.data = depthData;
+    if (edit) ui.depth.edit();
+  }, () => undefined);
+}
 
 /** Resolve the start station: URL first, then home port, then the last one opened, then Point Reyes. */
 function initialStation(urlId: string | undefined, p: { readonly station?: Station | undefined; readonly home?: Station | undefined; readonly saved: readonly Station[]; readonly recents: readonly Station[] }): Station {
@@ -80,6 +91,7 @@ const store = createStore({
   saved: prefs.saved,
   units: prefs.units,
   theme: prefs.theme,
+  depths: prefs.depths,
 });
 
 let controller: AbortController | undefined;
@@ -153,6 +165,7 @@ function render(state: AppState, prev: AppState | undefined): void {
   const draw = loadKey !== drawnFor;
   drawnFor = loadKey;
   const prevTurn = events.filter((e) => e.at <= now).at(-1);
+  const depth = state.depths.find((x) => x.id === station.id);
   const slack = [prevTurn, next].some((e) => e !== undefined && Math.abs(e.at - now) <= SLACK_MS);
 
   // A station opened from a shared link has no position until the station index loads.
@@ -168,8 +181,12 @@ function render(state: AppState, prev: AppState | undefined): void {
     slack,
     units,
     sun,
+    depth: depth?.m,
   };
   const bounds = dayBounds(events, selected);
+  depthData = { events, day: selected, depth, units };
+  // Without a depth the static "Set depth" row is already right; once loaded, the element keeps itself current.
+  if (depth || customElements.get('tide-depth')) loadDepth();
   ui.list.data = {
     events: eventsForDay(events, selected),
     nextAt: next?.at,
@@ -285,6 +302,14 @@ ui.settings.addEventListener('settings-change', (e) => {
     applyTheme(c.value);
     store.set({ theme: c.value });
   }
+});
+ui.depth.addEventListener('click', (e) => {
+  // Before the module loads, only the static "Set depth" button is here; afterwards the element handles clicks.
+  if (!customElements.get('tide-depth') && e.target instanceof HTMLButtonElement) loadDepth(true);
+});
+ui.depth.addEventListener('depth-change', (e) => {
+  const depth = (e as DepthChangeEvent).detail;
+  store.set({ depths: setDepth(store.get().station.id, depth).depths });
 });
 ui.search.addEventListener('station-pick', (e) => selectStation((e as StationPickEvent).detail));
 ui.retry.addEventListener('click', () => void load(store.get().station));

@@ -34,6 +34,10 @@ export function metresSpoken(h: number): string {
 
 const FT_PER_M = 3.28084;
 
+/** A metres value expressed in the display unit, and back. */
+export const inUnits = (m: number, units: Units): number => (units === 'm' ? m : m * FT_PER_M);
+export const toMetres = (v: number, units: Units): number => (units === 'm' ? v : v / FT_PER_M);
+
 /** Height in the chosen unit: "5.2 ft" or "1.6 m". Data stays in metres; only display converts. */
 export function height(m: number, units: Units): string {
   if (units === 'm') return metres(m);

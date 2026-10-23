@@ -1,4 +1,4 @@
-import type { Theme } from '../data/prefs';
+import type { StationDepth, Theme } from '../data/prefs';
 import type { DayKey, LoadState, Station, Units } from '../domain/types';
 
 export interface AppState {
@@ -14,6 +14,7 @@ export interface AppState {
   readonly saved: readonly Station[];
   readonly units: Units;
   readonly theme: Theme;
+  readonly depths: readonly StationDepth[];
 }
 
 export type Listener = (state: AppState, prev: AppState) => void;
