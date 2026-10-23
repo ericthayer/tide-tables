@@ -20,6 +20,8 @@ export interface ChartData {
   readonly units: Units;
   /** Daylight for the shown day; omitted until the station's position is known. */
   readonly sun: SunDay | undefined;
+  /** Depth window threshold, metres: drawn as a dashed line. */
+  readonly depth?: number | undefined;
 }
 
 // Plot geometry in viewBox units. The SVG keeps its aspect ratio, so circles stay round.
@@ -74,8 +76,16 @@ export class TideChart extends DataElement<ChartData> {
       ),
       s('path', { class: 'sw-curve__area', d: area }),
       s('line', { class: 'sw-curve__datum', x1: 0, x2: W, y1: BOTTOM + 6, y2: BOTTOM + 6 }),
-      s('path', { class: 'sw-curve__line', d: line, pathLength: 1 }),
     );
+    // Off the week's scale the line would sit on the axis or outside the plot; the text still says it.
+    const dy = d.depth === undefined ? NaN : y(d.depth);
+    if (dy >= TOP - 8 && dy <= BOTTOM + 6) {
+      svg.append(
+        s('line', { class: 'sw-curve__depth', x1: 0, x2: W, y1: f(dy), y2: f(dy) }),
+        s('text', { class: 'sw-curve__depth-tag', x: W, y: f(dy < TOP ? dy + 7.5 : dy - 2.6), 'text-anchor': 'end' }, height(d.depth!, d.units)),
+      );
+    }
+    svg.append(s('path', { class: 'sw-curve__line', d: line, pathLength: 1 }));
 
     for (const e of turns) {
       const cx = x(e.at);

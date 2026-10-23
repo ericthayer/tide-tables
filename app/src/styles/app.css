@@ -281,6 +281,53 @@ tide-chart:has(.scrub-input:focus-visible:not([data-pointer])) {
   outline: 2px solid var(--focus);
   outline-offset: 4px;
 }
+/* Depth window: a dashed ink line on the curve plus one line of text. Never red. */
+.sw-curve__depth {
+  stroke: var(--ink-muted);
+  stroke-width: 0.8;
+  stroke-dasharray: 2 2;
+}
+.sw-curve__depth-tag {
+  font: 400 6.5px/1 var(--font-mono);
+  fill: var(--ink-muted);
+}
+tide-depth {
+  display: block;
+  /* Sits close under the curve it describes, as in the mockup. */
+  margin-top: calc(var(--space-2) - var(--space-5));
+}
+.depth-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.depth-row .sw-button--quiet,
+.depth-actions .sw-button--quiet {
+  min-height: var(--size-touch);
+  padding: 0 var(--space-2);
+  font-size: 0.9375rem;
+}
+.depth-text {
+  display: grid;
+  gap: 2px;
+}
+.depth-muted {
+  color: var(--ink-muted);
+}
+.depth-form {
+  display: grid;
+  gap: var(--space-3);
+}
+.depth-unit {
+  color: var(--ink-muted);
+}
+.depth-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
 
 /* Table */
 tide-list {
@@ -532,6 +579,12 @@ tide-list {
   .sw-curve__area,
   .sw-curve__night {
     fill: none;
+  }
+  .sw-curve__depth {
+    stroke: CanvasText;
+  }
+  .sw-curve__depth-tag {
+    fill: CanvasText;
   }
   .sw-curve__now,
   .sw-curve__now-dot {

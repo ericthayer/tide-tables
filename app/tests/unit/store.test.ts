@@ -4,7 +4,7 @@ import { createStore, readUrl, writeUrl } from '../../src/state/store';
 
 describe('store', () => {
   it('notifies with next and previous state, and unsubscribes', () => {
-    const s = createStore({ station: DEFAULT_STATION, day: null, load: { status: 'idle' }, now: 0, recents: [], home: undefined, saved: [], units: 'ft', theme: 'system' });
+    const s = createStore({ station: DEFAULT_STATION, day: null, load: { status: 'idle' }, now: 0, recents: [], home: undefined, saved: [], units: 'ft', theme: 'system', depths: [] });
     const fn = vi.fn();
     const off = s.subscribe(fn);
     s.set({ now: 5 });

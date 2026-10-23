@@ -49,3 +49,11 @@ export type TideErrorReason = 'network' | 'no-data' | 'bad-response';
 
 /** Display unit for heights; data is always metres. */
 export type Units = 'ft' | 'm';
+
+/** A depth the user cares about at one station, e.g. "above 0.6 m" over a ramp. */
+export interface Depth {
+  /** Threshold above MLLW, metres. */
+  readonly m: number;
+  /** Above: launching, crossing a bar. Below: clamming, tide pools. */
+  readonly dir: 'above' | 'below';
+}
