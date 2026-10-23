@@ -14,6 +14,7 @@ Brand work for **Slack Water**, a tide-tables brand.
   7. Print booklet
   8. Image direction (engraved sea, never photographed)
   9. Components system strip
+- [`design/`](design/) holds the design system as code: `tokens.json` (source), generated `tokens.css`, `components.css`, an icon sprite, self-hosted fonts, and a WCAG contrast check. See [`design/README.md`](design/README.md).
 - `.claude/launch.json` defines a local preview server for Claude Code.
 
 Fonts load from Fontshare (Cabinet Grotesk) and Google Fonts (Geist Mono), so the board needs a network connection to render with the intended type.
