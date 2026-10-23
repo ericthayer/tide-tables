@@ -104,7 +104,8 @@ function render(state: AppState, prev: AppState | undefined): void {
     ui.next.data = { kind: 'loading' };
     const isError = ld.status === 'error';
     ui.note.hidden = !isError;
-    ui.retry.hidden = !isError;
+    // Retrying a station NOAA doesn't publish can never succeed.
+    ui.retry.hidden = !isError || ld.reason === 'no-data';
     // Never leave the previous station's curve and table under this station's name.
     if (isError) {
       ui.day.hidden = true;
