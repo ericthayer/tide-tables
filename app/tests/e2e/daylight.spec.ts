@@ -12,7 +12,7 @@ test('daylight: night is shaded behind the curve and sunrise and sunset sit in t
   // Point Reyes, 3 Nov 2026 (PST): sunrise about 06:40, sunset about 17:11.
   const sun = page.locator('caption .sun');
   await expect(sun).toHaveText(/06:(39|40|41)–17:(10|11|12)/);
-  await expect(page.getByRole('table')).toHaveAccessibleName(/^Today, Tuesday, November 3 ?\. Sunrise 06:\d\d, sunset 17:\d\d$/);
+  await expect(page.getByRole('table')).toHaveAccessibleName(/^Today, Tuesday, November 3 ?\. Sunrise 06:\d\d, sunset 17:\d\d ?\. Waning crescent moon, neap tides, smaller range than usual ?\.$/);
   await expect(page.locator('figcaption')).toContainText(/Sunrise 06:\d\d, sunset 17:\d\d\./);
 
   // Two bands: midnight to sunrise and sunset to midnight, about 6.7 h and 6.8 h of the 24 h width.
