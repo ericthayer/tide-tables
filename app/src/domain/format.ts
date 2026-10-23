@@ -1,5 +1,6 @@
 import type { DayKey, TideEvent, TurnType, Units } from './types';
-import { countdown } from './tide-math';
+import type { SunDay } from './sun';
+import { countdown, offsetAt } from './tide-math';
 
 const weekday = new Intl.DateTimeFormat('en-US', { weekday: 'short', timeZone: 'UTC' });
 const dayLong = new Intl.DateTimeFormat('en-US', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
@@ -43,6 +44,21 @@ export function heightSpoken(m: number, units: Units): string {
   if (units === 'm') return metresSpoken(m);
   const v = Math.abs(m * FT_PER_M) < 0.05 ? 0 : m * FT_PER_M;
   return `${v < 0 ? 'minus ' : ''}${Math.abs(v).toFixed(1)} feet`;
+}
+
+/** "06:39" on the station's wall clock, for an instant that need not be a turn. */
+export function stationClock(events: readonly TideEvent[], t: number): string {
+  const wall = Math.round((t + offsetAt(events, t) * 60_000) / 60_000) * 60_000;
+  return new Date(wall).toISOString().slice(11, 16);
+}
+
+/** Visual "06:39–17:12" and spoken "Sunrise 06:39, sunset 17:12" in station time. */
+export function daylightText(sun: SunDay, events: readonly TideEvent[]): { short: string; spoken: string } {
+  if (sun.kind === 'up') return { short: 'Sun up all day', spoken: 'The sun stays up all day' };
+  if (sun.kind === 'down') return { short: 'Sun down all day', spoken: 'The sun stays down all day' };
+  const rise = stationClock(events, sun.rise);
+  const set = stationClock(events, sun.set);
+  return { short: `${rise}–${set}`, spoken: `Sunrise ${rise}, sunset ${set}` };
 }
 
 /** "Sat 24" */

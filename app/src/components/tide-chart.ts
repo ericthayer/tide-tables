@@ -1,4 +1,5 @@
-import { clockTime, dayLongLabel, height, turnWord } from '../domain/format';
+import { clockTime, daylightText, dayLongLabel, height, turnWord } from '../domain/format';
+import type { SunDay } from '../domain/sun';
 import { dayBounds, dayCurve, eventsForDay, heightAt } from '../domain/tide-math';
 import type { DayKey, TideEvent, Units } from '../domain/types';
 import { CurveScrub } from './curve-scrub';
@@ -17,6 +18,8 @@ export interface ChartData {
   /** Within slack water of a turn: the now dot breathes. */
   readonly slack: boolean;
   readonly units: Units;
+  /** Daylight for the shown day; omitted until the station's position is known. */
+  readonly sun: SunDay | undefined;
 }
 
 // Plot geometry in viewBox units. The SVG keeps its aspect ratio, so circles stay round.
@@ -26,8 +29,20 @@ const BOTTOM = 80;
 const AXIS_Y = 94;
 const VB_H = 98;
 
-const f = (n: number): string => n.toFixed(1);
+const NIGHT_Y = 4;
 const NOON = 12 * 3_600_000;
+
+const f = (n: number): string => n.toFixed(1);
+
+/** Dark stretches of [start, end): before sunrise and after sunset, or the whole day. */
+function nightBands(sun: SunDay | undefined, start: number, end: number): [number, number][] {
+  if (!sun || sun.kind === 'up') return [];
+  if (sun.kind === 'down') return [[start, end]];
+  const bands: [number, number][] = [];
+  if (sun.rise > start) bands.push([start, Math.min(sun.rise, end)]);
+  if (sun.set < end) bands.push([Math.max(sun.set, start), end]);
+  return bands;
+}
 
 /**
  * Tide curve for one station-local day, built on the design system's sw-curve.
@@ -54,6 +69,9 @@ export class TideChart extends DataElement<ChartData> {
     const svg = s(
       'svg',
       { viewBox: `0 0 ${W} ${VB_H}`, 'aria-hidden': 'true', focusable: 'false' },
+      ...nightBands(d.sun, start, end).map(([a, b]) =>
+        s('rect', { class: 'sw-curve__night', x: f(x(a)), y: NIGHT_Y, width: f(x(b) - x(a)), height: BOTTOM + 6 - NIGHT_Y }),
+      ),
       s('path', { class: 'sw-curve__area', d: area }),
       s('line', { class: 'sw-curve__datum', x1: 0, x2: W, y1: BOTTOM + 6, y2: BOTTOM + 6 }),
       s('path', { class: 'sw-curve__line', d: line, pathLength: 1 }),
@@ -93,11 +111,12 @@ export class TideChart extends DataElement<ChartData> {
     const summary = turns.length
       ? `Tide curve for ${dayLongLabel(d.day)}: ${turns.map((e) => `${turnWord(e.type).toLowerCase()} water ${height(e.height, d.units)} at ${clockTime(e)}`).join(', ')}.`
       : `No tide data for ${dayLongLabel(d.day)}.`;
+    const daylight = d.sun ? ` ${daylightText(d.sun, d.events).spoken}.` : '';
 
     const rest = d.now !== undefined && d.now >= start && d.now < end ? d.now : start + NOON;
     this.#scrub.attach(svg, { events: d.events, day: d.day, start, end, rest, units: d.units, x, y, top: TOP, bottom: BOTTOM });
 
-    const figure = h('figure', { class: d.draw ? 'sw-curve sw-curve--draw' : 'sw-curve' }, svg, h('figcaption', { class: 'sw-sr' }, summary));
+    const figure = h('figure', { class: d.draw ? 'sw-curve sw-curve--draw' : 'sw-curve' }, svg, h('figcaption', { class: 'sw-sr' }, summary + daylight));
     // Swap only the figure: moving the slider out of the DOM would drop its focus mid-drag.
     if (this.#figure?.isConnected) this.#figure.replaceWith(figure);
     else this.replaceChildren(figure, ...this.#scrub.nodes);

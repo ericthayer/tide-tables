@@ -5,7 +5,8 @@ import { fetchTides, TideError } from './data/noaa';
 import { readPrefs, rememberStation, setHome, setTheme, setUnits } from './data/prefs';
 import { applyTheme } from './data/theme';
 import { DEFAULT_STATION, loadStations } from './data/stations';
-import { dayLongLabel, deviceClock } from './domain/format';
+import { daylightText, dayLongLabel, deviceClock } from './domain/format';
+import { sunDay } from './domain/sun';
 import { addDays, dayKeyAt, eventsForDay, nextTurn } from './domain/tide-math';
 import type { DayKey, Station, TideErrorReason } from './domain/types';
 import { createStore, readUrl, writeUrl, type AppState, type View } from './state/store';
@@ -153,6 +154,9 @@ function render(state: AppState, prev: AppState | undefined): void {
   const prevTurn = events.filter((e) => e.at <= now).at(-1);
   const slack = [prevTurn, next].some((e) => e !== undefined && Math.abs(e.at - now) <= SLACK_MS);
 
+  // A station opened from a shared link has no position until the station index loads.
+  const sun = station.lat === 0 && station.lng === 0 ? undefined : sunDay(selected, station.lat, station.lng);
+
   ui.chart.data = {
     events,
     day: selected,
@@ -162,6 +166,7 @@ function render(state: AppState, prev: AppState | undefined): void {
     draw,
     slack,
     units,
+    sun,
   };
   ui.list.data = {
     events: eventsForDay(events, selected),
@@ -169,6 +174,7 @@ function render(state: AppState, prev: AppState | undefined): void {
     now,
     caption: selected === today ? `Today, ${dayLongLabel(selected)}` : dayLongLabel(selected),
     units,
+    daylight: sun && daylightText(sun, events),
   };
 
   ui.day.hidden = false;

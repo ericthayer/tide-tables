@@ -42,7 +42,7 @@ test('AC3/AC4: day picker updates chart, table and URL; keyboard works', async (
   await page.keyboard.press('ArrowRight');
   await expect(page.getByRole('radio', { name: 'Wednesday, November 4' })).toBeChecked();
   await expect(page).toHaveURL(/day=2026-11-04/);
-  await expect(page.locator('caption')).toHaveText('Wednesday, November 4');
+  await expect(page.locator('caption .label')).toHaveText('Wednesday, November 4.');
   await expect(page.locator('.sw-curve__now')).toHaveCount(0);
   await expect(page.locator('figcaption')).toContainText('Wednesday, November 4');
 });
