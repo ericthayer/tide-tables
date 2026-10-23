@@ -46,3 +46,6 @@ export type LoadState =
   | { readonly status: 'error'; readonly station: Station; readonly reason: TideErrorReason };
 
 export type TideErrorReason = 'network' | 'no-data' | 'bad-response';
+
+/** Display unit for heights; data is always metres. */
+export type Units = 'ft' | 'm';

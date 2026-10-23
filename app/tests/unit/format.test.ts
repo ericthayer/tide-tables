@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { countdownText, dayLongLabel, dayShortLabel, isoLocal, metres, metresSpoken } from '../../src/domain/format';
+import { countdownText, dayLongLabel, dayShortLabel, height, heightSpoken, isoLocal, metres, metresSpoken } from '../../src/domain/format';
 
 describe('format', () => {
   it('formats heights with a true minus and one decimal', () => {
@@ -7,6 +7,14 @@ describe('format', () => {
     expect(metres(-0.319)).toBe('−0.3 m');
     expect(metres(-0.02)).toBe('0.0 m');
     expect(metresSpoken(-0.319)).toBe('minus 0.3 metres');
+  });
+  it('converts to feet for display only', () => {
+    expect(height(1.593, 'ft')).toBe('5.2 ft');
+    expect(height(-0.144, 'ft')).toBe('−0.5 ft');
+    expect(height(0.01, 'ft')).toBe('0.0 ft');
+    expect(height(1.593, 'm')).toBe('1.6 m');
+    expect(heightSpoken(0.702, 'ft')).toBe('2.3 feet');
+    expect(heightSpoken(-0.144, 'm')).toBe('minus 0.1 metres');
   });
   it('formats days independent of device timezone', () => {
     expect(dayShortLabel('2026-10-24')).toBe('Sat 24');

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readPrefs, rememberStation } from '../../src/data/prefs';
+import { DEFAULT_PREFS, PREFS_KEY, readPrefs, rememberStation, setHome, setTheme, setUnits } from '../../src/data/prefs';
 import { rowsToStations } from '../../src/data/stations';
 import type { Station } from '../../src/domain/types';
 
@@ -27,10 +27,45 @@ describe('prefs', () => {
     expect(p.recents.map((r) => r.id)).toEqual(['3', '6', '5', '4', '2']);
   });
   it('survives corrupt or throwing storage', () => {
-    expect(readPrefs({ getItem: () => '{nope' })).toEqual({ recents: [] });
-    expect(readPrefs({ getItem: () => { throw new Error('denied'); } })).toEqual({ recents: [] });
-    expect(readPrefs(undefined)).toEqual({ recents: [] });
+    expect(readPrefs({ getItem: () => '{nope' })).toEqual(DEFAULT_PREFS);
+    expect(readPrefs({ getItem: () => { throw new Error('denied'); } })).toEqual(DEFAULT_PREFS);
+    expect(readPrefs(undefined)).toEqual(DEFAULT_PREFS);
     expect(() => rememberStation(st('1'), { getItem: () => null, setItem: () => { throw new Error('quota'); } })).not.toThrow();
+  });
+});
+
+describe('prefs v2', () => {
+  it('migrates v1 station and recents, with feet and system theme by default', () => {
+    const s = memory();
+    s.setItem('slackwater:v1', JSON.stringify({ station: st('1'), recents: [st('1'), st('2')] }));
+    const p = readPrefs(s);
+    expect(p.station?.id).toBe('1');
+    expect(p.recents.map((r) => r.id)).toEqual(['1', '2']);
+    expect(p).toMatchObject({ saved: [], units: 'ft', theme: 'system' });
+    expect(p.home).toBeUndefined();
+    rememberStation(st('3'), s);
+    expect(JSON.parse(s.getItem(PREFS_KEY)!).station.id).toBe('3');
+  });
+  it('sets home port at the top of saved, keeps earlier ones, and clears home without dropping saved', () => {
+    const s = memory();
+    setHome(st('1'), s);
+    setHome(st('2'), s);
+    let p = setHome(st('1'), s);
+    expect(p.home?.id).toBe('1');
+    expect(p.saved.map((x) => x.id)).toEqual(['1', '2']);
+    p = setHome(null, s);
+    expect(p.home).toBeUndefined();
+    expect(readPrefs(s).saved.map((x) => x.id)).toEqual(['1', '2']);
+    for (const id of ['3', '4', '5', '6', '7']) setHome(st(id), s);
+    expect(readPrefs(s).saved).toHaveLength(5);
+  });
+  it('stores units and theme, and ignores unknown values', () => {
+    const s = memory();
+    setUnits('m', s);
+    setTheme('dark', s);
+    expect(readPrefs(s)).toMatchObject({ units: 'm', theme: 'dark' });
+    s.setItem(PREFS_KEY, JSON.stringify({ units: 'yards', theme: 'sepia', recents: [], saved: [] }));
+    expect(readPrefs(s)).toMatchObject({ units: 'ft', theme: 'system' });
   });
 });
 
