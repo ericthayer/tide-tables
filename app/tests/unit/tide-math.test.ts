@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { TideEvent } from '../../src/domain/types';
 import {
   addDays,
+  clockAt,
   countdown,
   dayBounds,
   dayCurve,
@@ -10,6 +11,7 @@ import {
   heightAt,
   nextTurn,
   parseWall,
+  readingAt,
 } from '../../src/domain/tide-math';
 
 /** Build an event from a wall-clock string and a fixed offset (minutes). */
@@ -149,5 +151,29 @@ describe('countdown', () => {
   });
   it('never goes negative', () => {
     expect(countdown(-5_000)).toEqual({ hours: 0, minutes: 0 });
+  });
+});
+
+describe('clockAt', () => {
+  it('gives station wall-clock time between turns', () => {
+    expect(clockAt(week, parseWall('2026-10-23 12:40') + 420 * 60_000)).toBe('12:40');
+  });
+  it('follows the offset across a DST switch', () => {
+    const fallBack: TideEvent[] = [ev('2026-11-01 00:30', 'H', 1.5, -420), ev('2026-11-01 04:10', 'L', 0.4, -480)];
+    // 05:00 PST is 13:00 UTC; the last turn before it is already on PST.
+    expect(clockAt(fallBack, Date.UTC(2026, 10, 1, 13, 0))).toBe('05:00');
+  });
+});
+
+describe('readingAt', () => {
+  it('is rising before a high and falling before a low', () => {
+    const t = (local: string): number => parseWall(local) + 420 * 60_000;
+    expect(readingAt(week, t('2026-10-23 06:00'))).toMatchObject({ rising: true });
+    expect(readingAt(week, t('2026-10-23 12:00'))).toMatchObject({ rising: false });
+    expect(readingAt(week, t('2026-10-23 12:00'))!.height).toBeCloseTo(heightAt(week, t('2026-10-23 12:00'))!, 9);
+  });
+  it('is null outside the data', () => {
+    expect(readingAt(week, week[0]!.at - 1)).toBeNull();
+    expect(readingAt(week, week.at(-1)!.at + 1)).toBeNull();
   });
 });

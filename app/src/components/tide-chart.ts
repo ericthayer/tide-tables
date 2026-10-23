@@ -1,6 +1,7 @@
 import { clockTime, dayLongLabel, height, turnWord } from '../domain/format';
 import { dayBounds, dayCurve, eventsForDay, heightAt } from '../domain/tide-math';
 import type { DayKey, TideEvent, Units } from '../domain/types';
+import { CurveScrub } from './curve-scrub';
 import { DataElement, h, s } from './dom';
 
 export interface ChartData {
@@ -26,12 +27,17 @@ const AXIS_Y = 94;
 const VB_H = 98;
 
 const f = (n: number): string => n.toFixed(1);
+const NOON = 12 * 3_600_000;
 
 /**
  * Tide curve for one station-local day, built on the design system's sw-curve.
  * The SVG is decorative; the figcaption summarises and <tide-list> holds every value.
+ * A range slider over it reads the estimated height at any moment.
  */
 export class TideChart extends DataElement<ChartData> {
+  readonly #scrub = new CurveScrub('chart-scrub');
+  #figure: HTMLElement | undefined;
+
   protected render(d: ChartData): void {
     const { start, end } = dayBounds(d.events, d.day);
     const span = Math.max(d.max - d.min, 0.5);
@@ -88,9 +94,14 @@ export class TideChart extends DataElement<ChartData> {
       ? `Tide curve for ${dayLongLabel(d.day)}: ${turns.map((e) => `${turnWord(e.type).toLowerCase()} water ${height(e.height, d.units)} at ${clockTime(e)}`).join(', ')}.`
       : `No tide data for ${dayLongLabel(d.day)}.`;
 
-    this.replaceChildren(
-      h('figure', { class: d.draw ? 'sw-curve sw-curve--draw' : 'sw-curve' }, svg, h('figcaption', { class: 'sw-sr' }, summary)),
-    );
+    const rest = d.now !== undefined && d.now >= start && d.now < end ? d.now : start + NOON;
+    this.#scrub.attach(svg, { events: d.events, day: d.day, start, end, rest, units: d.units, x, y, top: TOP, bottom: BOTTOM });
+
+    const figure = h('figure', { class: d.draw ? 'sw-curve sw-curve--draw' : 'sw-curve' }, svg, h('figcaption', { class: 'sw-sr' }, summary));
+    // Swap only the figure: moving the slider out of the DOM would drop its focus mid-drag.
+    if (this.#figure?.isConnected) this.#figure.replaceWith(figure);
+    else this.replaceChildren(figure, ...this.#scrub.nodes);
+    this.#figure = figure;
   }
 }
 customElements.define('tide-chart', TideChart);

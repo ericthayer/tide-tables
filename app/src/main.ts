@@ -177,7 +177,7 @@ function render(state: AppState, prev: AppState | undefined): void {
   if (ld.stale) ui.noteText.textContent = `Showing saved tides from ${deviceClock(ld.fetchedAt)}. They’ll refresh when you’re back online.`;
 
   const stationChanged = prev?.load.status !== 'ready' || prev.load.station.id !== station.id;
-  if (stationChanged) announce(`Showing tides for ${station.name}, ${selected === today ? 'today' : dayLongLabel(selected)}.`);
+  if (stationChanged) announce(`Showing tides for ${ld.station.name}, ${selected === today ? 'today' : dayLongLabel(selected)}.`);
   else if (prev && prev.day !== state.day) announce(selected === today ? `Today, ${dayLongLabel(selected)}` : dayLongLabel(selected));
 }
 
