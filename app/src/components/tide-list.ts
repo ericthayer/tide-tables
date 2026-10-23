@@ -11,6 +11,8 @@ export interface ListData {
   readonly now: number;
   readonly caption: string;
   readonly units: Units;
+  /** Sunrise and sunset for the caption row; omitted until the station's position is known. */
+  readonly daylight: { readonly short: string; readonly spoken: string } | undefined;
 }
 
 const designIcon = (id: string): SVGSVGElement =>
@@ -18,7 +20,7 @@ const designIcon = (id: string): SVGSVGElement =>
 
 /** The day's high and low waters: the chart's text equivalent, as the design system's sw-table. */
 export class TideList extends DataElement<ListData> {
-  protected render({ events, nextAt, now, caption, units }: ListData): void {
+  protected render({ events, nextAt, now, caption, units, daylight }: ListData): void {
     if (events.length === 0) {
       this.replaceChildren(h('p', { class: 'body empty' }, 'No high or low water in the saved data for this day.'));
       return;
@@ -38,7 +40,24 @@ export class TideList extends DataElement<ListData> {
       h(
         'table',
         { class: 'sw-table' },
-        h('caption', { class: 'label table-caption' }, caption),
+        h(
+          'caption',
+          { class: 'table-caption' },
+          h(
+            'span',
+            { class: 'cap-row' },
+            h('span', { class: 'label' }, caption, daylight ? sr('.') : null),
+            daylight
+              ? h(
+                  'span',
+                  { class: 'caption sun' },
+                  s('svg', { class: 'sw-icon', 'aria-hidden': 'true', focusable: 'false' }, s('use', { href: '#i-sun' })),
+                  h('span', { 'aria-hidden': 'true' }, daylight.short),
+                  sr(daylight.spoken),
+                )
+              : null,
+          ),
+        ),
         h('thead', { class: 'sw-sr' }, h('tr', {}, h('th', { scope: 'col' }, 'Tide'), h('th', { scope: 'col' }, 'Time'), h('th', { scope: 'col' }, 'Height'))),
         h('tbody', {}, ...rows),
       ),

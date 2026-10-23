@@ -291,6 +291,24 @@ tide-list {
   padding-bottom: var(--space-2);
   color: var(--ink-muted);
 }
+/* Caption row: the day on the left, sunrise and sunset on the right. */
+.cap-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.sun {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  white-space: nowrap;
+}
+.sun .sw-icon {
+  width: 12px;
+  height: 12px;
+  align-self: center;
+}
 .turn-type {
   display: inline-flex;
   align-items: center;
@@ -477,12 +495,18 @@ tide-list {
   }
 }
 
+/* Night behind the curve: the water tint, static. */
+.sw-curve__night {
+  fill: var(--water);
+}
+
 @media (forced-colors: active) {
   .sw-curve__line,
   .sw-curve__extreme {
     stroke: CanvasText;
   }
-  .sw-curve__area {
+  .sw-curve__area,
+  .sw-curve__night {
     fill: none;
   }
   .sw-curve__now,
