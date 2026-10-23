@@ -23,15 +23,15 @@ People who work or play on the water (sailors, kayakers, surfers, divers, angler
 | Kayaker at the launch | "Do I have time before the ebb?" | Next turn, time-until, height; today's curve with a *now* marker |
 | Sailor planning the weekend | "When is high water Saturday?" | 7-day day picker, per-day HW/LW list |
 | Harbour crew, screen-reader user | "Read me today's tides" | Semantic list of turns, announced station/day changes, no info locked in the chart |
-| Anyone offline at sea | "It still works out here" | Last 8 days of predictions cached on device |
+| Anyone offline at sea | "It still works out here" | The 7-day window (today + 6) last fetched is cached on device |
 
 ## 4. Scope
 
 ### In (v1)
 
 - **F1 Today view:** station name, date, *Next slack* label, next turn time (large), type + height + countdown, 24-hour tide curve with *now* marker, list of the day's high and low waters with the next one marked.
-- **F2 Day picker:** today plus the next 6 days. Selecting a day re-renders curve and list; *now* marker only on today.
-- **F3 Station search:** dialog with an accessible combobox over all NOAA tide-prediction stations (~3,500), searchable by name, state or station id. Index is lazy-loaded the first time search opens.
+- **F2 Day picker:** today plus the next 6 days, where *today* is the **station-local** date. Selecting a day re-renders curve and list; *now* marker only on today.
+- **F3 Station search:** dialog with an accessible combobox over all NOAA tide-prediction stations (~3,500), searchable by name, state or station id. Index is lazy-loaded the first time search opens. The listbox renders at most 50 options, and a polite status line announces the result count (debounced).
 - **F4 Nearest station:** opt-in "Use my location" button (never prompts on load) picks the nearest station.
 - **F5 Remember station:** last station (and up to 5 recents) persists locally. Default station: Point Reyes, CA (9415020).
 - **F6 Offline:** app shell precached; tide responses cached; a clear "Showing saved tides from <time>" note when offline.
@@ -50,12 +50,12 @@ Push notifications and departure alerts, tidal currents (true slack of current),
 | ID | Given / When / Then |
 |---|---|
 | AC1 | Given a station with data, when the app opens, then the next high or low after *now* is shown with its station-local time, type, height (m, 1 dp) and a countdown in `Xh Ym`. |
-| AC2 | The countdown updates at least once a minute without a reload, and rolls to the following turn when the current one passes. |
+| AC2 | The countdown updates at least once a minute without a reload, rolls to the following turn when the current one passes, and is correct immediately after the app returns from background (`visibilitychange`/`pageshow`), including rolling *today* past station-local midnight. |
 | AC3 | The curve plots predicted height for 00:00 to 24:00 station-local time, passing through every high and low of that day, with a red *now* marker on today only. |
-| AC4 | Selecting a day in the picker updates the curve and list within one frame of data being available; selection is reflected in the URL (`?station=…&day=…`) so the view is shareable and the back button works. |
+| AC4 | Selecting a day in the picker updates the curve and list within one frame of data being available; selection is reflected in the URL (`?station=…&day=YYYY-MM-DD`, station-local date) so the view is shareable. Station changes `pushState` (back returns to the previous station); day changes `replaceState` (arrow keys in the radio group would otherwise flood history). A `day` outside today…today+6 (e.g. an old shared link) falls back to today; an unknown `station` falls back to the saved/default station with a calm note. |
 | AC5 | Typing "reyes" in station search lists Point Reyes within 100 ms of the index loading; Enter selects it, closes the dialog and returns focus to the trigger. |
 | AC6 | "Use my location" only requests permission on click; on denial it shows a calm inline message and leaves the current station. |
-| AC7 | With the network off after one successful load, reopening the app shows the same station's tides and the offline note. |
+| AC7 | With the network off after one successful load, reopening the app (same day or any later day still inside the cached 7-day window) shows the same station's tides and the offline note. Once the cache no longer covers station-local today, AC8's state is shown with the saved time. On iOS this holds only after one online launch from the home screen (separate storage). |
 | AC8 | On API error with no cache, the app shows "Tides for <station> aren't available right now" with a Retry button; nothing crashes. |
 
 ### Accessibility (WCAG 2.2 AA, non-negotiable)
@@ -76,8 +76,8 @@ Push notifications and departure alerts, tidal currents (true slack of current),
 |---|---|
 | JS, gzipped, initial | ≤ 15 KB |
 | CSS, gzipped | ≤ 8 KB |
-| Station index (lazy) | ≤ 70 KB gzipped, not on the critical path |
-| LCP (Lighthouse mobile, simulated 4G) | ≤ 1.8 s |
+| Station index (lazy) | ≤ 70 KB gzipped, not on the critical path (measured ~66 KB for 3,502 stations as compact tuples; little headroom, so no extra fields) |
+| LCP (Lighthouse mobile, simulated 4G, NOAA response mocked locally so CI is deterministic; one manual run against live NOAA recorded in the PR) | ≤ 1.8 s |
 | CLS | ≤ 0.02 |
 | TBT | ≤ 100 ms |
 | Lighthouse Performance / Accessibility / Best Practices | ≥ 95 / 100 / 100 |
@@ -102,7 +102,7 @@ Water, not UI chrome. All motion uses one tidal easing (`cubic-bezier(.45,0,.55,
 
 | Risk | Mitigation |
 |---|---|
-| NOAA API outage or rate limit | Cache-first for the current day range, retry with backoff, clear error state |
+| NOAA API outage or rate limit | Network-first with 4 s timeout falling back to the last cached week for the station, retry with backoff, clear error state |
 | Interpolated curve differs from NOAA's 6-min series | Cosine interpolation between hi/lo is the standard method and matches within a few cm at mid-tide; heights shown in the list are NOAA's exact values |
 | "Slack" means slack *current* to sailors, not high/low water | Copy says "Next slack" per brand voice and shows the turn type (High/Low); a true current product is out of scope and noted in the footer copy |
 | Design tokens arrive late from the design-system thread | Ship with brand-board values in `tokens.css`; swap file when tokens land (single import) |
