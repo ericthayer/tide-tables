@@ -112,3 +112,15 @@ export function countdown(ms: number): { hours: number; minutes: number } {
   const total = Math.max(0, Math.ceil(ms / MINUTE));
   return { hours: Math.floor(total / 60), minutes: total % 60 };
 }
+
+/** Station wall clock "HH:mm" at instant t, for times between the turns. */
+export function clockAt(events: readonly TideEvent[], t: number): string {
+  return new Date(t + offsetAt(events, t) * MINUTE).toISOString().slice(11, 16);
+}
+
+/** Estimated height at t and whether the tide is heading up to a high. Null outside the data. */
+export function readingAt(events: readonly TideEvent[], t: number): { height: number; rising: boolean } | null {
+  const height = heightAt(events, t);
+  const next = nextTurn(events, t);
+  return height === null || !next ? null : { height, rising: next.type === 'H' };
+}

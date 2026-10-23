@@ -224,6 +224,7 @@ tide-days {
 /* Chart */
 tide-chart {
   display: block;
+  position: relative;
   aspect-ratio: 240 / 98;
   view-transition-name: chart;
 }
@@ -232,6 +233,53 @@ tide-chart {
 }
 .curve-tag {
   font-size: 6.5px;
+}
+
+/* Read any moment: an invisible native slider over the curve; ink cursor, never red, no motion. */
+.sw-curve__scrub {
+  stroke: var(--ink);
+  stroke-width: 0.8;
+}
+.sw-curve__scrub-dot {
+  fill: var(--bg);
+  stroke: var(--ink);
+  stroke-width: 1.2;
+}
+.scrub-marks,
+.scrub-tag {
+  visibility: hidden;
+}
+tide-chart:focus-within .scrub-marks,
+tide-chart:focus-within .scrub-tag {
+  visibility: visible;
+}
+.scrub-tag {
+  position: absolute;
+  top: -6px;
+  left: var(--x, 50%);
+  /* Centred on the cursor, sliding to flush at either edge so it never overflows. */
+  transform: translateX(calc(var(--x, 50%) * -1));
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--fill-strong);
+  color: var(--on-fill-strong);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.scrub-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: ew-resize;
+  touch-action: pan-y;
+}
+tide-chart:has(.scrub-input:focus-visible:not([data-pointer])) {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
 }
 
 /* Table */
@@ -441,6 +489,15 @@ tide-list {
   .sw-curve__now-dot {
     stroke: Highlight;
     fill: Highlight;
+  }
+  .sw-curve__scrub,
+  .sw-curve__scrub-dot {
+    stroke: CanvasText;
+  }
+  .scrub-tag {
+    forced-color-adjust: none;
+    background: CanvasText;
+    color: Canvas;
   }
   .day-opt:has(:checked),
   .option[aria-selected='true'],
