@@ -2,7 +2,8 @@ import '../../design/tokens.css';
 import '../../design/components.css';
 import './styles/app.css';
 import { fetchTides, TideError } from './data/noaa';
-import { readPrefs, rememberStation } from './data/prefs';
+import { readPrefs, rememberStation, setHome, setTheme, setUnits } from './data/prefs';
+import { applyTheme } from './data/theme';
 import { DEFAULT_STATION, loadStations } from './data/stations';
 import { dayLongLabel, deviceClock } from './domain/format';
 import { addDays, dayKeyAt, eventsForDay, nextTurn } from './domain/tide-math';
@@ -13,11 +14,13 @@ import './components/tide-days';
 import './components/tide-chart';
 import './components/tide-list';
 import './components/tide-station-search';
+import './components/tide-settings';
 import type { TideChart } from './components/tide-chart';
 import type { DayChangeEvent, TideDays } from './components/tide-days';
 import type { TideList } from './components/tide-list';
 import type { TideNext } from './components/tide-next';
 import type { StationPickEvent, TideStationSearch } from './components/tide-station-search';
+import type { SettingsChangeEvent, TideSettings } from './components/tide-settings';
 
 const BASE = import.meta.env.BASE_URL;
 const DAYS = 7;
@@ -44,23 +47,32 @@ const ui = {
   announcer: $<HTMLDivElement>('#announcer'),
   trigger: $<HTMLButtonElement>('#station-trigger'),
   search: $<TideStationSearch>('tide-station-search'),
+  home: $<HTMLButtonElement>('#home-btn'),
+  settingsTrigger: $<HTMLButtonElement>('#settings-trigger'),
+  settings: $<TideSettings>('tide-settings'),
+  footUnits: $<HTMLSpanElement>('#foot-units'),
 };
 
-/** Resolve the start station: URL first, then saved, then Point Reyes. */
-function initialStation(urlId: string | undefined, saved: Station | undefined, recents: readonly Station[]): Station {
-  if (!urlId) return saved ?? DEFAULT_STATION;
-  const known = [saved, ...recents, DEFAULT_STATION].find((s) => s?.id === urlId);
+/** Resolve the start station: URL first, then home port, then the last one opened, then Point Reyes. */
+function initialStation(urlId: string | undefined, p: { readonly station?: Station | undefined; readonly home?: Station | undefined; readonly saved: readonly Station[]; readonly recents: readonly Station[] }): Station {
+  if (!urlId) return p.home ?? p.station ?? DEFAULT_STATION;
+  const known = [p.station, p.home, ...p.saved, ...p.recents, DEFAULT_STATION].find((s) => s?.id === urlId);
   return known ?? { id: urlId, name: `Station ${urlId}`, state: '', lat: 0, lng: 0 };
 }
 
 const fromUrl = readUrl(location.search);
 const prefs = readPrefs();
+applyTheme(prefs.theme);
 const store = createStore({
-  station: initialStation(fromUrl.stationId, prefs.station, prefs.recents),
+  station: initialStation(fromUrl.stationId, prefs),
   day: fromUrl.day ?? null,
   load: { status: 'idle' },
   now: Date.now(),
   recents: prefs.recents,
+  home: prefs.home,
+  saved: prefs.saved,
+  units: prefs.units,
+  theme: prefs.theme,
 });
 
 let controller: AbortController | undefined;
@@ -95,8 +107,10 @@ const ERROR_COPY: Record<TideErrorReason, string> = {
 };
 
 function render(state: AppState, prev: AppState | undefined): void {
-  const { station, load: ld, now } = state;
+  const { station, load: ld, now, units } = state;
   ui.name.textContent = station.name;
+  ui.home.setAttribute('aria-pressed', String(state.home?.id === station.id));
+  ui.footUnits.textContent = units === 'ft' ? 'feet' : 'metres';
   ui.meta.textContent = [station.state, `NOAA ${station.id}`].filter(Boolean).join(' · ');
   document.title = `${station.name} · Slack Water`;
 
@@ -124,7 +138,7 @@ function render(state: AppState, prev: AppState | undefined): void {
   const week = events.filter((e) => days.some((d) => e.local.startsWith(d)));
   const heights = (week.length ? week : events).map((e) => e.height);
 
-  ui.next.data = next ? { kind: 'ready', event: next, now } : { kind: 'none' };
+  ui.next.data = next ? { kind: 'ready', event: next, now, units } : { kind: 'none' };
   ui.days.data = { days, today, selected };
   // The curve draws once per station load; day changes cross-fade instead.
   const loadKey = `${station.id}|${ld.fetchedAt}`;
@@ -141,12 +155,14 @@ function render(state: AppState, prev: AppState | undefined): void {
     max: Math.max(...heights),
     draw,
     slack,
+    units,
   };
   ui.list.data = {
     events: eventsForDay(events, selected),
     nextAt: next?.at,
     now,
     caption: selected === today ? `Today, ${dayLongLabel(selected)}` : dayLongLabel(selected),
+    units,
   };
 
   ui.day.hidden = false;
@@ -184,7 +200,9 @@ if (store.get().station.name.startsWith('Station ')) {
   void loadStations()
     .then((all) => {
       const found = all.find((s) => s.id === store.get().station.id);
-      if (found) store.set({ station: found, recents: rememberStation(found) });
+      if (!found) return;
+      const home = store.get().home?.id === found.id ? setHome(found).home : store.get().home;
+      store.set({ station: found, recents: rememberStation(found), home, saved: readPrefs().saved });
     })
     .catch(() => undefined);
 }
@@ -196,14 +214,40 @@ ui.days.addEventListener('day-change', (e) => {
   transition(() => store.set({ day }));
 });
 ui.trigger.addEventListener('click', () => {
-  ui.search.recents = store.get().recents;
+  const st = store.get();
+  ui.search.recents = st.recents;
+  ui.search.saved = st.saved;
+  ui.search.homeId = st.home?.id;
   ui.search.open(ui.trigger);
+});
+ui.home.addEventListener('click', () => {
+  const { station, home } = store.get();
+  const wasHome = home?.id === station.id;
+  const p = setHome(wasHome ? null : station);
+  store.set({ home: p.home, saved: p.saved });
+  announce(wasHome ? `${station.name} is no longer your home port.` : `${station.name} is now your home port.`);
+});
+ui.settingsTrigger.addEventListener('click', () => {
+  const { units, theme } = store.get();
+  ui.settings.open(ui.settingsTrigger, { units, theme });
+});
+ui.settings.addEventListener('settings-change', (e) => {
+  const c = (e as SettingsChangeEvent).detail;
+  if (c.kind === 'units') {
+    setUnits(c.value);
+    store.set({ units: c.value });
+  } else {
+    setTheme(c.value);
+    applyTheme(c.value);
+    store.set({ theme: c.value });
+  }
 });
 ui.search.addEventListener('station-pick', (e) => selectStation((e as StationPickEvent).detail));
 ui.retry.addEventListener('click', () => void load(store.get().station));
 addEventListener('popstate', () => {
   const u = readUrl(location.search);
-  const st = initialStation(u.stationId, store.get().station, store.get().recents);
+  const cur = store.get();
+  const st = u.stationId ? initialStation(u.stationId, cur) : cur.station;
   if (st.id !== store.get().station.id) {
     store.set({ station: st, day: u.day ?? null });
     void load(st);

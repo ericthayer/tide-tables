@@ -1,11 +1,11 @@
-import { clockTime, countdownText, isoLocal, metres, metresSpoken, turnWord } from '../domain/format';
-import type { TideEvent } from '../domain/types';
+import { clockTime, countdownText, height, heightSpoken, isoLocal, turnWord } from '../domain/format';
+import type { TideEvent, Units } from '../domain/types';
 import { DataElement, h, sr } from './dom';
 
 export type NextData =
   | { readonly kind: 'loading' }
   | { readonly kind: 'none' }
-  | { readonly kind: 'ready'; readonly event: TideEvent; readonly now: number };
+  | { readonly kind: 'ready'; readonly event: TideEvent; readonly now: number; readonly units: Units };
 
 /** Hero: the next turn of the tide, its height and a countdown (design system sw-readout). */
 export class TideNext extends DataElement<NextData> {
@@ -20,7 +20,7 @@ export class TideNext extends DataElement<NextData> {
       );
       return;
     }
-    const { event: e, now } = d;
+    const { event: e, now, units } = d;
     const cd = countdownText(e.at - now);
     this.replaceChildren(
       label,
@@ -28,8 +28,8 @@ export class TideNext extends DataElement<NextData> {
       h(
         'p',
         { class: 'sw-readout__detail data' },
-        h('span', { 'aria-hidden': 'true' }, `${turnWord(e.type)} · ${metres(e.height)} · `, h('span', { class: 'sw-readout__eta' }, cd.short)),
-        sr(`${turnWord(e.type)} water, ${metresSpoken(e.height)}, ${cd.spoken}.`),
+        h('span', { 'aria-hidden': 'true' }, `${turnWord(e.type)} · ${height(e.height, units)} · `, h('span', { class: 'sw-readout__eta' }, cd.short)),
+        sr(`${turnWord(e.type)} water, ${heightSpoken(e.height, units)}, ${cd.spoken}.`),
       ),
     );
   }

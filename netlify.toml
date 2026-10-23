@@ -37,4 +37,4 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "geolocation=(self), camera=(), microphone=()"
-    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://api.tidesandcurrents.noaa.gov; img-src 'self' data:; style-src 'self'; font-src 'self'; script-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://api.tidesandcurrents.noaa.gov; img-src 'self' data:; style-src 'self'; font-src 'self'; script-src 'self' 'sha256-FOO7eZKePhxdXQFRnGYOTtVz7nkNzW0aY16EGD95GX4='; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"

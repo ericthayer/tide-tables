@@ -1,4 +1,4 @@
-import type { DayKey, TideEvent, TurnType } from './types';
+import type { DayKey, TideEvent, TurnType, Units } from './types';
 import { countdown } from './tide-math';
 
 const weekday = new Intl.DateTimeFormat('en-US', { weekday: 'short', timeZone: 'UTC' });
@@ -29,6 +29,20 @@ export function metres(h: number): string {
 export function metresSpoken(h: number): string {
   const v = Math.abs(h) < 0.05 ? 0 : h;
   return `${v < 0 ? 'minus ' : ''}${Math.abs(v).toFixed(1)} metres`;
+}
+
+const FT_PER_M = 3.28084;
+
+/** Height in the chosen unit: "5.2 ft" or "1.6 m". Data stays in metres; only display converts. */
+export function height(m: number, units: Units): string {
+  if (units === 'm') return metres(m);
+  const v = Math.abs(m * FT_PER_M) < 0.05 ? 0 : m * FT_PER_M;
+  return `${v.toFixed(1).replace('-', '−')} ft`;
+}
+export function heightSpoken(m: number, units: Units): string {
+  if (units === 'm') return metresSpoken(m);
+  const v = Math.abs(m * FT_PER_M) < 0.05 ? 0 : m * FT_PER_M;
+  return `${v < 0 ? 'minus ' : ''}${Math.abs(v).toFixed(1)} feet`;
 }
 
 /** "Sat 24" */

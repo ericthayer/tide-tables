@@ -1,6 +1,6 @@
-import { clockTime, dayLongLabel, metres, turnWord } from '../domain/format';
+import { clockTime, dayLongLabel, height, turnWord } from '../domain/format';
 import { dayBounds, dayCurve, eventsForDay, heightAt } from '../domain/tide-math';
-import type { DayKey, TideEvent } from '../domain/types';
+import type { DayKey, TideEvent, Units } from '../domain/types';
 import { DataElement, h, s } from './dom';
 
 export interface ChartData {
@@ -15,6 +15,7 @@ export interface ChartData {
   readonly draw: boolean;
   /** Within slack water of a turn: the now dot breathes. */
   readonly slack: boolean;
+  readonly units: Units;
 }
 
 // Plot geometry in viewBox units. The SVG keeps its aspect ratio, so circles stay round.
@@ -84,7 +85,7 @@ export class TideChart extends DataElement<ChartData> {
     });
 
     const summary = turns.length
-      ? `Tide curve for ${dayLongLabel(d.day)}: ${turns.map((e) => `${turnWord(e.type).toLowerCase()} water ${metres(e.height)} at ${clockTime(e)}`).join(', ')}.`
+      ? `Tide curve for ${dayLongLabel(d.day)}: ${turns.map((e) => `${turnWord(e.type).toLowerCase()} water ${height(e.height, d.units)} at ${clockTime(e)}`).join(', ')}.`
       : `No tide data for ${dayLongLabel(d.day)}.`;
 
     this.replaceChildren(

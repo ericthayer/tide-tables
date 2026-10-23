@@ -86,6 +86,22 @@ main,
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  white-space: nowrap;
+}
+.bar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+/* Header actions: a matching pair of tonal icon buttons, one step off the page. */
+.bar-btn {
+  --icon-knock: var(--surface);
+  background: var(--surface);
+  color: var(--ink);
+}
+.bar-btn .sw-icon {
+  width: 20px;
+  height: 20px;
 }
 .brand-mark {
   width: 28px;
@@ -93,11 +109,6 @@ main,
   --mk-bg: var(--ink);
   --mk-water: var(--bg);
   --mk-dot: var(--signal);
-}
-.station-btn {
-  min-height: var(--size-touch);
-  padding-inline: var(--space-4);
-  font-size: 0.9375rem;
 }
 main {
   flex: 1;
@@ -112,6 +123,31 @@ main:focus {
 }
 
 /* Hero */
+.title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+/* Home port toggle: filled when this station is home. Never red; red means now. */
+.home-btn {
+  flex: none;
+  width: var(--size-touch);
+  height: var(--size-touch);
+  min-height: var(--size-touch);
+  margin-top: calc((2.25rem - var(--size-touch)) / 2);
+  padding: 0;
+  border-radius: var(--radius-pill);
+}
+.home-btn .sw-icon {
+  width: 20px;
+  height: 20px;
+}
+.home-btn[aria-pressed='true'] {
+  background: var(--fill-strong);
+  color: var(--on-fill-strong);
+  box-shadow: none;
+}
 .hero {
   view-transition-name: hero;
 }
@@ -337,6 +373,46 @@ tide-list {
 .recent {
   margin-block: 4px;
 }
+.saved-list {
+  list-style: none;
+  padding: 0;
+  margin-bottom: var(--space-2);
+}
+.saved-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: var(--size-touch);
+  padding: var(--space-2) 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+.saved-name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.saved-meta {
+  color: var(--ink-muted);
+}
+
+/* Settings sheet */
+.set-group {
+  display: grid;
+  gap: var(--space-2);
+}
+.set-label,
+.set-help {
+  color: var(--ink-muted);
+}
+.seg-3 {
+  --count: 3;
+}
 
 /* View transitions between days and stations: one slow, tidal cross-fade. */
 ::view-transition-old(*),
@@ -367,10 +443,14 @@ tide-list {
     fill: Highlight;
   }
   .day-opt:has(:checked),
-  .option[aria-selected='true'] {
+  .option[aria-selected='true'],
+  .home-btn[aria-pressed='true'] {
     forced-color-adjust: none;
     background: Highlight;
     color: HighlightText;
+  }
+  .bar-btn {
+    border: 1px solid ButtonText;
   }
 }
 

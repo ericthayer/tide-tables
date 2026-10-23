@@ -7,6 +7,8 @@
     <meta name="description" content="When the tide turns next, and how high. Calm, exact tide tables for US coastal stations." />
     <meta name="theme-color" content="#F3EEE3" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0B1120" media="(prefers-color-scheme: dark)" />
+    <!-- Apply a forced colour mode before first paint. Its CSP hash lives in netlify.toml; postbuild checks it. -->
+    <script>try{var t=JSON.parse(localStorage.getItem('slackwater:v2')||'{}').theme;if(t==='light'||t==='dark'){document.documentElement.dataset.theme=t;document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.content=t==='dark'?'#0B1120':'#F3EEE3'})}}catch(e){}</script>
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Slack Water" />
@@ -32,6 +34,8 @@
         <symbol id="i-down" viewBox="0 0 16 16"><path d="M8 13 L3 5 H13 Z" fill="currentColor" /></symbol>
         <symbol id="i-pin" viewBox="0 0 16 16"><circle cx="8" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M8 11.5 V15" stroke="currentColor" stroke-width="1.6" /></symbol>
         <symbol id="i-search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M10.4 10.4 L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></symbol>
+        <symbol id="i-anchor" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="3.4" r="1.6" /><path d="M8 5 V14 M5 7.5 H11 M2.8 9.8 C3.4 12.6 5.6 14 8 14 C10.4 14 12.6 12.6 13.2 9.8" /></g></symbol>
+        <symbol id="i-settings" viewBox="0 0 16 16"><path d="M2 4.5 H14 M2 11.5 H14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><circle cx="5.5" cy="4.5" r="1.9" fill="var(--icon-knock, var(--bg))" stroke="currentColor" stroke-width="1.6" /><circle cx="10.5" cy="11.5" r="1.9" fill="var(--icon-knock, var(--bg))" stroke="currentColor" stroke-width="1.6" /></symbol>
         <symbol id="i-close" viewBox="0 0 16 16"><path d="M4 4 L12 12 M12 4 L4 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></symbol>
       </defs>
     </svg>
@@ -39,15 +43,25 @@
     <a class="skip" href="#tides">Skip to tides</a>
 
     <header class="bar">
-      <p class="brand title-3"><svg class="brand-mark" viewBox="0 0 100 100" aria-hidden="true"><use href="#mark" /></svg>Slack Water</p>
-      <button type="button" class="sw-button sw-button--outline station-btn" id="station-trigger" aria-haspopup="dialog">
-        <svg class="sw-icon" aria-hidden="true" focusable="false"><use href="#i-search" /></svg><span>Change station</span>
-      </button>
+      <p class="brand title-3"><svg class="brand-mark" viewBox="0 0 100 100" aria-hidden="true"><use href="#mark" /></svg><span class="brand-name">Slack Water</span></p>
+      <div class="bar-actions">
+        <button type="button" class="sw-button icon-btn bar-btn" id="settings-trigger" aria-haspopup="dialog" aria-label="Settings">
+          <svg class="sw-icon" aria-hidden="true" focusable="false"><use href="#i-settings" /></svg>
+        </button>
+        <button type="button" class="sw-button icon-btn bar-btn" id="station-trigger" aria-haspopup="dialog" aria-label="Change station">
+          <svg class="sw-icon" aria-hidden="true" focusable="false"><use href="#i-search" /></svg>
+        </button>
+      </div>
     </header>
 
     <main id="tides" tabindex="-1">
       <section class="hero" aria-labelledby="station-name">
-        <h1 id="station-name" class="title-1 station-name">Point Reyes</h1>
+        <div class="title-row">
+          <h1 id="station-name" class="title-1 station-name">Point Reyes</h1>
+          <button type="button" class="sw-button sw-button--outline home-btn" id="home-btn" aria-pressed="false" aria-label="Home port">
+            <svg class="sw-icon" aria-hidden="true" focusable="false"><use href="#i-anchor" /></svg>
+          </button>
+        </div>
         <p class="caption station-meta" id="station-meta">CA · NOAA 9415020</p>
         <tide-next class="sw-readout" aria-busy="true">
           <p class="sw-readout__label label">Next slack</p>
@@ -70,11 +84,12 @@
     </main>
 
     <footer class="foot caption">
-      <p>Predictions from NOAA CO-OPS. Heights in metres above MLLW, times local to the station.</p>
+      <p>Predictions from NOAA CO-OPS. Heights in <span id="foot-units">feet</span> above MLLW, times local to the station.</p>
       <p><strong>Not for navigation.</strong></p>
     </footer>
 
     <tide-station-search></tide-station-search>
+    <tide-settings></tide-settings>
     <div class="sw-sr" id="announcer" aria-live="polite" aria-atomic="true"></div>
   </body>
 </html>
