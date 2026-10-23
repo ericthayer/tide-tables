@@ -1,8 +1,40 @@
 [build]
-  publish = "."
+  # Builds the app into dist/app/ and copies the brand board into dist/.
+  command = "npm --prefix app ci && npm --prefix app run build"
+  publish = "dist"
 
-# Serve the brand board at the site root (no index.html in the repo).
+[build.environment]
+  NODE_VERSION = "22"
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1"
+
+# Serve the brand board at the site root (no index.html at the root).
 [[redirects]]
   from = "/"
   to = "/slack-water-brandkit.html"
   status = 200
+
+[[redirects]]
+  from = "/app"
+  to = "/app/"
+  status = 301
+
+# Hashed build assets never change.
+[[headers]]
+  for = "/app/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# The service worker, shell and station index must revalidate so deploys land.
+[[headers]]
+  for = "/app/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+    Service-Worker-Allowed = "/app/"
+
+[[headers]]
+  for = "/app/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(self), camera=(), microphone=()"
+    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://api.tidesandcurrents.noaa.gov; img-src 'self' data:; style-src 'self'; font-src 'self'; script-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"

@@ -1,0 +1,380 @@
+/*
+ * Slack Water app layout. Visual language comes from design/tokens.css and
+ * design/components.css; this file only places things and adds app glue.
+ * Rules from design/README.md: red means now/slack only, one 2px focus ring,
+ * 44px hit areas, animate transform/opacity/stroke-dashoffset only.
+ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+p,
+h1,
+h2,
+h3,
+ol,
+ul,
+figure {
+  margin: 0;
+}
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+[hidden] {
+  display: none !important;
+}
+.sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* Skip link */
+.skip {
+  position: absolute;
+  left: var(--space-4);
+  top: calc(env(safe-area-inset-top) + var(--space-2));
+  z-index: 10;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--fill-strong);
+  color: var(--on-fill-strong);
+  transform: translateY(-200%);
+}
+.skip:focus {
+  transform: none;
+}
+
+/* Frame */
+.bar,
+main,
+.foot {
+  width: 100%;
+  max-width: 36rem;
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.brand-mark {
+  width: 28px;
+  height: 28px;
+  --mk-bg: var(--ink);
+  --mk-water: var(--bg);
+  --mk-dot: var(--signal);
+}
+.station-btn {
+  min-height: var(--size-touch);
+  padding-inline: var(--space-4);
+  font-size: 0.9375rem;
+}
+main {
+  flex: 1;
+  container: main / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding-block: var(--space-4) var(--space-8);
+}
+main:focus {
+  outline: none;
+}
+
+/* Hero */
+.hero {
+  view-transition-name: hero;
+}
+.station-meta {
+  margin-top: var(--space-1);
+  color: var(--ink-muted);
+}
+tide-next {
+  margin-top: var(--space-6);
+  /* Reserve the readout's final height so the late-arriving data never shifts layout. */
+  min-height: 7.75rem;
+}
+tide-next[aria-busy='true'] .sw-readout__time {
+  color: var(--ink-muted);
+}
+@container main (min-width: 30rem) {
+  tide-next .readout-xl {
+    font-size: 4.5rem;
+  }
+}
+
+/* Day picker: native radios dressed as design-system chips */
+.day {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+tide-days {
+  display: block;
+  min-height: var(--size-touch);
+}
+.days {
+  min-inline-size: 0;
+  border: 0;
+  margin: 0 calc(var(--space-4) * -1);
+  padding: var(--space-1) var(--space-4);
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+.days::-webkit-scrollbar {
+  display: none;
+}
+.day-opt {
+  flex: none;
+  scroll-snap-align: start;
+  cursor: pointer;
+  margin-block: 4px; /* chip is 36px; ::after extends the hit area to 44px */
+}
+.day-opt::after {
+  content: '';
+  position: absolute;
+  inset: -4px 0;
+}
+.day-opt input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+}
+.day-opt:has(:checked) {
+  background: var(--fill-strong);
+  color: var(--on-fill-strong);
+  box-shadow: none;
+}
+.day-opt:has(:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Chart */
+tide-chart {
+  display: block;
+  aspect-ratio: 240 / 98;
+  view-transition-name: chart;
+}
+.sw-curve svg {
+  overflow: hidden;
+}
+.curve-tag {
+  font-size: 6.5px;
+}
+
+/* Table */
+tide-list {
+  display: block;
+}
+.table-caption {
+  text-align: left;
+  padding-bottom: var(--space-2);
+  color: var(--ink-muted);
+}
+.turn-type {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.turn-type .sw-icon {
+  width: 10px;
+  height: 10px;
+}
+.sw-table th,
+.sw-table td {
+  min-height: var(--size-touch);
+}
+.sw-table tr.is-next th {
+  font-weight: 500;
+}
+.empty {
+  color: var(--ink-muted);
+}
+
+/* Offline / error note: neutral, never red */
+.note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+/* Footer */
+.foot {
+  padding-block: var(--space-4) var(--space-8);
+  border-top: 1px solid var(--line);
+  color: var(--ink-muted);
+}
+.foot strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* Station search: bottom sheet */
+.sheet {
+  width: 100%;
+  max-width: 36rem;
+  max-height: min(92dvh, 44rem);
+  margin: auto auto 0;
+  padding: var(--space-4) var(--space-4) calc(var(--space-6) + env(safe-area-inset-bottom));
+  border: 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--bg);
+  color: var(--ink);
+  box-shadow: var(--depth-3);
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.sheet[open] {
+  display: flex;
+}
+.sheet::backdrop {
+  background: rgb(14 24 46 / 0.55);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .sheet[open] {
+    animation: sheet-rise var(--dur-current) var(--ease-settle);
+  }
+}
+@keyframes sheet-rise {
+  from {
+    transform: translateY(100%);
+  }
+}
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.icon-btn {
+  width: var(--size-touch);
+  height: var(--size-touch);
+  min-height: var(--size-touch);
+  padding: 0;
+}
+.results {
+  list-style: none;
+  padding: 0;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: var(--size-touch);
+  padding: var(--space-2);
+  border-top: 1px solid var(--line);
+  cursor: pointer;
+}
+.option[aria-selected='true'] {
+  background: var(--fill-strong);
+  color: var(--on-fill-strong);
+  border-radius: var(--radius-sm);
+}
+.opt-id {
+  color: inherit;
+}
+.locate-btn {
+  align-self: flex-start;
+}
+.recents {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.recents .label {
+  color: var(--ink-muted);
+}
+.recent-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.recent {
+  margin-block: 4px;
+}
+
+/* View transitions between days and stations: one slow, tidal cross-fade. */
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: var(--dur-surge);
+  animation-timing-function: var(--ease-tide);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .sw-curve__line,
+  .sw-curve__extreme {
+    stroke: CanvasText;
+  }
+  .sw-curve__area {
+    fill: none;
+  }
+  .sw-curve__now,
+  .sw-curve__now-dot {
+    stroke: Highlight;
+    fill: Highlight;
+  }
+  .day-opt:has(:checked),
+  .option[aria-selected='true'] {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+}
+
+/* The design-system field has its own affordances; drop WebKit's blue clear button. */
+.sw-field__input::-webkit-search-cancel-button {
+  appearance: none;
+}

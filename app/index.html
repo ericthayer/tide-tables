@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Slack Water · Tide tables</title>
+    <meta name="description" content="When the tide turns next, and how high. Calm, exact tide tables for US coastal stations." />
+    <meta name="theme-color" content="#F3EEE3" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0B1120" media="(prefers-color-scheme: dark)" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Slack Water" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icons/mark.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://api.tidesandcurrents.noaa.gov" crossorigin />
+    <link rel="preload" href="../design/fonts/CabinetGrotesk-Extrabold.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="../design/fonts/GeistMono-Latin.woff2" as="font" type="font/woff2" crossorigin />
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body class="body">
+    <svg class="sprite" aria-hidden="true" focusable="false">
+      <defs>
+        <clipPath id="mk-clip"><circle cx="50" cy="50" r="48" /></clipPath>
+        <symbol id="mark" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="48" fill="var(--mk-bg,#14213D)" />
+          <path clip-path="url(#mk-clip)" fill="var(--mk-water,#F3EEE3)" d="M0 50 C10 34 18 24 26 24 C34 24 42 34 50 50 C58 66 66 76 74 76 C82 76 90 66 100 50 L100 100 L0 100 Z" />
+          <circle cx="50" cy="50" r="46.5" fill="none" stroke="var(--mk-bg,#14213D)" stroke-width="3" />
+          <circle cx="26" cy="24" r="7" fill="var(--mk-dot,#C8102E)" />
+        </symbol>
+        <symbol id="i-up" viewBox="0 0 16 16"><path d="M8 3 L13 11 H3 Z" fill="currentColor" /></symbol>
+        <symbol id="i-down" viewBox="0 0 16 16"><path d="M8 13 L3 5 H13 Z" fill="currentColor" /></symbol>
+        <symbol id="i-pin" viewBox="0 0 16 16"><circle cx="8" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M8 11.5 V15" stroke="currentColor" stroke-width="1.6" /></symbol>
+        <symbol id="i-search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M10.4 10.4 L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></symbol>
+        <symbol id="i-close" viewBox="0 0 16 16"><path d="M4 4 L12 12 M12 4 L4 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></symbol>
+      </defs>
+    </svg>
+
+    <a class="skip" href="#tides">Skip to tides</a>
+
+    <header class="bar">
+      <p class="brand title-3"><svg class="brand-mark" viewBox="0 0 100 100" aria-hidden="true"><use href="#mark" /></svg>Slack Water</p>
+      <button type="button" class="sw-button sw-button--outline station-btn" id="station-trigger" aria-haspopup="dialog">
+        <svg class="sw-icon" aria-hidden="true" focusable="false"><use href="#i-search" /></svg><span>Change station</span>
+      </button>
+    </header>
+
+    <main id="tides" tabindex="-1">
+      <section class="hero" aria-labelledby="station-name">
+        <h1 id="station-name" class="title-1 station-name">Point Reyes</h1>
+        <p class="caption station-meta" id="station-meta">CA · NOAA 9415020</p>
+        <tide-next class="sw-readout" aria-busy="true">
+          <p class="sw-readout__label label">Next slack</p>
+          <p class="sw-readout__time readout-xl">--:--</p>
+          <p class="sw-readout__detail data">Loading tides…</p>
+        </tide-next>
+      </section>
+
+      <section class="day" aria-labelledby="day-h">
+        <h2 id="day-h" class="sw-sr">Tides by day</h2>
+        <tide-days></tide-days>
+        <tide-chart></tide-chart>
+        <tide-list></tide-list>
+      </section>
+
+      <div class="note" id="note" hidden>
+        <p id="note-text" class="body-sm"></p>
+        <button type="button" class="sw-button sw-button--outline" id="retry" hidden>Try again</button>
+      </div>
+    </main>
+
+    <footer class="foot caption">
+      <p>Predictions from NOAA CO-OPS. Heights in metres above MLLW, times local to the station.</p>
+      <p><strong>Not for navigation.</strong></p>
+    </footer>
+
+    <tide-station-search></tide-station-search>
+    <div class="sw-sr" id="announcer" aria-live="polite" aria-atomic="true"></div>
+  </body>
+</html>
