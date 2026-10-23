@@ -1,0 +1,57 @@
+import type { DayKey, LoadState, Station } from '../domain/types';
+
+export interface AppState {
+  readonly station: Station;
+  /** Selected station-local day; null means "today at the station". */
+  readonly day: DayKey | null;
+  readonly load: LoadState;
+  /** Clock used for "now"; ticks each minute. */
+  readonly now: number;
+  readonly recents: readonly Station[];
+}
+
+export type Listener = (state: AppState, prev: AppState) => void;
+
+export interface Store {
+  get(): AppState;
+  set(patch: Partial<AppState>): void;
+  subscribe(fn: Listener): () => void;
+}
+
+/** Minimal observable store: explicit updates, synchronous fan-out. */
+export function createStore(initial: AppState): Store {
+  let state = initial;
+  const listeners = new Set<Listener>();
+  return {
+    get: () => state,
+    set(patch) {
+      const prev = state;
+      state = { ...state, ...patch };
+      for (const fn of listeners) fn(state, prev);
+    },
+    subscribe(fn) {
+      listeners.add(fn);
+      return () => listeners.delete(fn);
+    },
+  };
+}
+
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+const ID_RE = /^[A-Za-z0-9]{5,12}$/;
+
+/** Read ?station=&day= defensively; anything malformed is ignored. */
+export function readUrl(search: string): { stationId?: string; day?: DayKey } {
+  const p = new URLSearchParams(search);
+  const out: { stationId?: string; day?: DayKey } = {};
+  const id = p.get('station');
+  const day = p.get('day');
+  if (id && ID_RE.test(id)) out.stationId = id;
+  if (day && DAY_RE.test(day)) out.day = day;
+  return out;
+}
+
+export function writeUrl(base: string, stationId: string, day: DayKey | null): string {
+  const p = new URLSearchParams({ station: stationId });
+  if (day) p.set('day', day);
+  return `${base}?${p.toString()}`;
+}

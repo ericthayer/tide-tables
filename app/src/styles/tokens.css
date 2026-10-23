@@ -1,0 +1,114 @@
+/*
+ * Slack Water design tokens.
+ * Swap point: the design-system thread owns these values. Brand primitives
+ * come from slack-water-brandkit.html; semantic roles map them per scheme.
+ */
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('/fonts/cabinet-grotesk-800.woff2') format('woff2');
+  font-weight: 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('/fonts/cabinet-grotesk-500.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('/fonts/geist-mono-400.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  /* Primitives (brand board §04) */
+  --sw-ivory: #f3eee3; /* Almanac: ground */
+  --sw-paper: #e8e1d1;
+  --sw-navy: #14213d; /* Sounding: ink, type */
+  --sw-navy-2: #0e182e;
+  --sw-canvas: #0b1120;
+  --sw-fog: #b9b4a8; /* Fog line: rules, quiet. Never text on ivory (1.79:1). */
+  --sw-red: #c8102e; /* Signal: now and next slack only */
+  --sw-red-lift: #ff6b7d; /* Signal on dark grounds: 6.9:1 on canvas */
+
+  /* Type */
+  --sw-font-display: 'Cabinet Grotesk', 'Helvetica Neue', Arial, sans-serif;
+  --sw-font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --sw-text-xs: 0.75rem;
+  --sw-text-sm: 0.875rem;
+  --sw-text-md: 1rem;
+  --sw-text-lg: 1.25rem;
+  --sw-text-xl: clamp(1.75rem, 7cqi, 2.25rem);
+  --sw-text-hero: clamp(3.5rem, 22cqi, 6rem);
+  --sw-track-label: 0.12em;
+  --sw-track-display: -0.04em;
+
+  /* Space and shape */
+  --sw-space-1: 0.25rem;
+  --sw-space-2: 0.5rem;
+  --sw-space-3: 0.75rem;
+  --sw-space-4: 1rem;
+  --sw-space-5: 1.5rem;
+  --sw-space-6: 2rem;
+  --sw-radius: 5px;
+  --sw-radius-pill: 999px;
+  --sw-target: 44px;
+  --sw-focus-width: 3px;
+
+  /* Motion: one tidal easing, slow durations */
+  --sw-ease-tide: cubic-bezier(0.45, 0, 0.55, 1);
+  --sw-dur-short: 240ms;
+  --sw-dur-flood: 1200ms;
+  --sw-dur-swell: 6s;
+
+  /* Semantic roles, light (default) */
+  color-scheme: light dark;
+  --sw-ground: var(--sw-ivory);
+  --sw-surface: var(--sw-paper);
+  --sw-ink: var(--sw-navy); /* 13.8:1 on ivory */
+  --sw-ink-muted: #575e6f; /* 5.6:1 on ivory */
+  --sw-signal: var(--sw-red); /* 5.1:1 on ivory */
+  --sw-on-signal: var(--sw-ivory);
+  --sw-rule: rgb(20 33 61 / 0.14); /* decorative hairline */
+  --sw-border: var(--sw-navy); /* control boundary, ≥3:1 */
+  --sw-water: rgb(20 33 61 / 0.1);
+  --sw-water-line: rgb(20 33 61 / 0.22);
+  --sw-curve: var(--sw-navy);
+  --sw-focus: var(--sw-navy);
+  --sw-scrim: rgb(11 17 32 / 0.55);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sw-ground: var(--sw-canvas);
+    --sw-surface: var(--sw-navy);
+    --sw-ink: var(--sw-ivory); /* 16.3:1 on canvas */
+    --sw-ink-muted: #a2a19f; /* 7.3:1 on canvas */
+    --sw-signal: var(--sw-red-lift);
+    --sw-on-signal: var(--sw-canvas);
+    --sw-rule: rgb(243 238 227 / 0.14);
+    --sw-border: var(--sw-ivory);
+    --sw-water: rgb(243 238 227 / 0.08);
+    --sw-water-line: rgb(243 238 227 / 0.2);
+    --sw-curve: var(--sw-ivory);
+    --sw-focus: var(--sw-ivory);
+    --sw-scrim: rgb(0 0 0 / 0.7);
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --sw-ink-muted: var(--sw-ink);
+    --sw-rule: var(--sw-border);
+    --sw-water-line: var(--sw-ink-muted);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --sw-dur-short: 0ms;
+    --sw-dur-flood: 0ms;
+  }
+}
