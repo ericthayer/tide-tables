@@ -1,6 +1,12 @@
 import type { CurvePoint, DayKey, TideEvent } from './types';
 
+/** What the curve maths needs from a turn; currents reuse it with speed as `height`. */
+type Timed = Pick<TideEvent, 'at' | 'offsetMin'>;
+type Turn = Timed & Pick<TideEvent, 'height'>;
+
 const MINUTE = 60_000;
+/** Slack water: the window around a turn when the stream is (nearly) still. */
+export const SLACK_MS = 20 * MINUTE;
 const DAY = 24 * 60 * MINUTE;
 const WALL = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$/;
 
@@ -18,7 +24,7 @@ function wallDay(wallMs: number): DayKey {
 }
 
 /** Index of the last event at or before t, or -1. Events are sorted by `at`. */
-function floorIndex(events: readonly TideEvent[], t: number): number {
+function floorIndex(events: readonly Timed[], t: number): number {
   let lo = 0;
   let hi = events.length - 1;
   let found = -1;
@@ -40,13 +46,13 @@ function floorIndex(events: readonly TideEvent[], t: number): number {
  * so this is exact at every local midnight; the nearest event can be on the far
  * side of a switch and put the hour around midnight on the wrong day.
  */
-export function offsetAt(events: readonly TideEvent[], t: number): number {
+export function offsetAt(events: readonly Timed[], t: number): number {
   if (events.length === 0) return 0;
   return events[Math.max(floorIndex(events, t), 0)]!.offsetMin;
 }
 
 /** Station-local day containing instant t. */
-export function dayKeyAt(events: readonly TideEvent[], t: number): DayKey {
+export function dayKeyAt(events: readonly Timed[], t: number): DayKey {
   return wallDay(t + offsetAt(events, t) * MINUTE);
 }
 
@@ -55,7 +61,7 @@ export function addDays(key: DayKey, n: number): DayKey {
 }
 
 /** Absolute instant of station-local midnight starting `key`. */
-function localMidnight(events: readonly TideEvent[], key: DayKey): number {
+function localMidnight(events: readonly Timed[], key: DayKey): number {
   const wall = parseWall(`${key} 00:00`);
   let t = wall - (events[0]?.offsetMin ?? 0) * MINUTE;
   t = wall - offsetAt(events, t) * MINUTE;
@@ -63,16 +69,16 @@ function localMidnight(events: readonly TideEvent[], key: DayKey): number {
 }
 
 /** Absolute [start, end) of a station-local day. 23 or 25 h on DST changes. */
-export function dayBounds(events: readonly TideEvent[], key: DayKey): { start: number; end: number } {
+export function dayBounds(events: readonly Timed[], key: DayKey): { start: number; end: number } {
   return { start: localMidnight(events, key), end: localMidnight(events, addDays(key, 1)) };
 }
 
-export function eventsForDay(events: readonly TideEvent[], key: DayKey): TideEvent[] {
+export function eventsForDay<E extends Pick<TideEvent, 'local'>>(events: readonly E[], key: DayKey): E[] {
   return events.filter((e) => e.local.startsWith(key));
 }
 
 /** First turn strictly after `now`. */
-export function nextTurn(events: readonly TideEvent[], now: number): TideEvent | undefined {
+export function nextTurn<E extends Timed>(events: readonly E[], now: number): E | undefined {
   const i = floorIndex(events, now);
   return events[i + 1];
 }
@@ -81,7 +87,7 @@ export function nextTurn(events: readonly TideEvent[], now: number): TideEvent |
  * Predicted height at t by cosine interpolation between the surrounding turns.
  * Exact at each turn with zero slope there (slack water). Null outside the data.
  */
-export function heightAt(events: readonly TideEvent[], t: number): number | null {
+export function heightAt(events: readonly Turn[], t: number): number | null {
   const i = floorIndex(events, t);
   const a = events[i];
   if (!a) return null;
@@ -93,7 +99,7 @@ export function heightAt(events: readonly TideEvent[], t: number): number | null
 }
 
 /** Curve for a station-local day, sampled every `stepMin` plus every turn. */
-export function dayCurve(events: readonly TideEvent[], key: DayKey, stepMin = 10): CurvePoint[] {
+export function dayCurve(events: readonly Turn[], key: DayKey, stepMin = 10): CurvePoint[] {
   const { start, end } = dayBounds(events, key);
   const times = new Set<number>();
   for (let t = start; t < end; t += stepMin * MINUTE) times.add(t);

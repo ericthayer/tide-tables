@@ -22,12 +22,12 @@ const all = (await walk(appDir))
   .filter((p) => p !== 'sw.js')
   .sort();
 // The version covers every file the worker may cache, including the lazily cached
-// station index and icons; otherwise a deploy that only changes those never reaches users.
+// station and currents indexes and icons; otherwise a deploy that only changes those never reaches users.
 const hash = createHash('sha256');
 for (const f of all) hash.update(f).update(await readFile(join(appDir, f)));
 const version = hash.digest('hex').slice(0, 12);
 const precache = all
-  .filter((p) => p !== 'stations.json' && !p.endsWith('.png') && p !== 'icons/mark.svg')
+  .filter((p) => p !== 'stations.json' && p !== 'currents.json' && !p.endsWith('.png') && p !== 'icons/mark.svg')
   .map((f) => base + f);
 
 const swPath = join(appDir, 'sw.js');

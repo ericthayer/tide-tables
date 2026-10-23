@@ -11,10 +11,10 @@ const utcDate = (key: DayKey): Date => new Date(`${key}T00:00:00Z`);
 export const turnWord = (t: TurnType): 'High' | 'Low' => (t === 'H' ? 'High' : 'Low');
 
 /** "12:58" from a station wall clock. */
-export const clockTime = (e: TideEvent): string => e.local.slice(11, 16);
+export const clockTime = <E extends Pick<TideEvent, 'local'>>(e: E): string => e.local.slice(11, 16);
 
 /** ISO 8601 with the station's offset, for <time datetime>. */
-export function isoLocal(e: TideEvent): string {
+export function isoLocal<E extends Pick<TideEvent, 'local' | 'offsetMin'>>(e: E): string {
   const sign = e.offsetMin < 0 ? '-' : '+';
   const abs = Math.abs(e.offsetMin);
   const hh = String(Math.floor(abs / 60)).padStart(2, '0');

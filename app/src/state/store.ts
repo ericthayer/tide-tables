@@ -1,5 +1,5 @@
 import type { StationDepth, Theme } from '../data/prefs';
-import type { DayKey, LoadState, Station, Units } from '../domain/types';
+import type { CurrentStation, DayKey, LoadState, Station, Units } from '../domain/types';
 
 export interface AppState {
   readonly station: Station;
@@ -15,6 +15,9 @@ export interface AppState {
   readonly units: Units;
   readonly theme: Theme;
   readonly depths: readonly StationDepth[];
+  /** Nearest current station for `tideId`; station is undefined when none is close enough. */
+  readonly currents: { readonly tideId: string; readonly station: CurrentStation | undefined } | undefined;
+  readonly showCurrents: boolean;
 }
 
 export type Listener = (state: AppState, prev: AppState) => void;

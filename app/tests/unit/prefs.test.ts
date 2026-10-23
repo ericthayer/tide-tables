@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_PREFS, PREFS_KEY, readPrefs, rememberStation, setDepth, setHome, setTheme, setUnits } from '../../src/data/prefs';
+import { DEFAULT_PREFS, PREFS_KEY, readPrefs, rememberStation, setDepth, setHome, setShowCurrents, setTheme, setUnits } from '../../src/data/prefs';
 import { rowsToStations } from '../../src/data/stations';
 import type { Station } from '../../src/domain/types';
 
@@ -66,6 +66,14 @@ describe('prefs v2', () => {
     expect(readPrefs(s)).toMatchObject({ units: 'm', theme: 'dark' });
     s.setItem(PREFS_KEY, JSON.stringify({ units: 'yards', theme: 'sepia', recents: [], saved: [] }));
     expect(readPrefs(s)).toMatchObject({ units: 'ft', theme: 'system' });
+  });
+  it('remembers whether currents are open; anything but true is closed', () => {
+    const s = memory();
+    expect(readPrefs(s).showCurrents).toBe(false);
+    setShowCurrents(true, s);
+    expect(readPrefs(s).showCurrents).toBe(true);
+    s.setItem(PREFS_KEY, JSON.stringify({ showCurrents: 'yes', recents: [], saved: [] }));
+    expect(readPrefs(s).showCurrents).toBe(false);
   });
 });
 

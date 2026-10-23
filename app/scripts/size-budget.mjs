@@ -1,4 +1,4 @@
-// Fail the build if shipped JS/CSS or the lazy station index exceed the PRD §5 budgets.
+// Fail the build if shipped JS/CSS or the lazy station/currents indexes exceed the PRD §5 budgets.
 // First-load JS (what index.html loads or preloads) has 15 KB; each on-demand chunk has its own 5 KB.
 import { readdir, readFile } from 'node:fs/promises';
 import { brotliCompressSync, gzipSync } from 'node:zlib';
@@ -15,6 +15,7 @@ const budgets = [
   ...lazy.map((name) => ({ label: `Lazy chunk ${name} (gzip)`, match: (f) => f === name, dir: 'assets/', limit: 5 * KB, size: gzip })),
   { label: 'CSS (gzip)', match: (f) => f.endsWith('.css'), dir: 'assets/', limit: 8 * KB, size: gzip },
   { label: 'Station index (brotli)', match: (f) => f === 'stations.json', dir: '', limit: 70 * KB, size: (b) => brotliCompressSync(b).length },
+  { label: 'Currents index (brotli)', match: (f) => f === 'currents.json', dir: '', limit: 30 * KB, size: (b) => brotliCompressSync(b).length },
 ];
 
 let failed = firstLoad.size === 0;

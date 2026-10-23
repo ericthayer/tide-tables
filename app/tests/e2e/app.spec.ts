@@ -157,8 +157,8 @@ test.describe('reduced motion', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('./');
     await ready(page);
-    const anim = await page.locator('.sw-curve__line').evaluate((el) => getComputedStyle(el).animationName);
-    expect(anim).toBe('none');
+    // Poll: under a loaded test run the first read can land before styles resolve and return "".
+    await expect.poll(() => page.locator('.sw-curve__line').evaluate((el) => getComputedStyle(el).animationName)).toBe('none');
   });
 });
 
