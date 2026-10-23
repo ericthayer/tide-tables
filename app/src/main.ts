@@ -6,8 +6,9 @@ import { readPrefs, rememberStation, setHome, setTheme, setUnits } from './data/
 import { applyTheme } from './data/theme';
 import { DEFAULT_STATION, loadStations } from './data/stations';
 import { daylightText, dayLongLabel, deviceClock } from './domain/format';
+import { moonPhase } from './domain/moon';
 import { sunDay } from './domain/sun';
-import { addDays, dayKeyAt, eventsForDay, nextTurn } from './domain/tide-math';
+import { addDays, dayBounds, dayKeyAt, eventsForDay, nextTurn } from './domain/tide-math';
 import type { DayKey, Station, TideErrorReason } from './domain/types';
 import { createStore, readUrl, writeUrl, type AppState, type View } from './state/store';
 import './components/tide-next';
@@ -168,6 +169,7 @@ function render(state: AppState, prev: AppState | undefined): void {
     units,
     sun,
   };
+  const bounds = dayBounds(events, selected);
   ui.list.data = {
     events: eventsForDay(events, selected),
     nextAt: next?.at,
@@ -175,6 +177,8 @@ function render(state: AppState, prev: AppState | undefined): void {
     caption: selected === today ? `Today, ${dayLongLabel(selected)}` : dayLongLabel(selected),
     units,
     daylight: sun && daylightText(sun, events),
+    moon: moonPhase((bounds.start + bounds.end) / 2),
+    south: station.lat < 0,
   };
 
   ui.day.hidden = false;

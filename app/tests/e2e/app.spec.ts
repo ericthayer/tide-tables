@@ -47,6 +47,21 @@ test('AC3/AC4: day picker updates chart, table and URL; keyboard works', async (
   await expect(page.locator('figcaption')).toContainText('Wednesday, November 4');
 });
 
+test('Moon: one spring/neap label in the caption, spoken in full', async ({ page }) => {
+  await page.goto('./');
+  await ready(page);
+  const moon = page.locator('caption .moon');
+  await expect(moon.locator('[aria-hidden="true"]:not(svg)')).toHaveText('Neap tides');
+  await expect(moon.locator('.sw-sr')).toHaveText('Waning crescent moon, neap tides, smaller range than usual.');
+  await expect(moon.locator('svg path')).toHaveAttribute('d', /^M8,2A6,6 0 0 0 8,14/);
+  // Five days on, the new moon brings spring tides.
+  await page.goto('./?station=9415020&day=2026-11-08');
+  await ready(page);
+  await expect(moon).toContainText('Spring tides');
+  await expect(moon.locator('.sw-sr')).toHaveText('New moon, spring tides, bigger range than usual.');
+  await axe(page);
+});
+
 test('AC4: a shared link opens on its day', async ({ page }) => {
   await page.goto('./?station=9415020&day=2026-11-05');
   await ready(page);
