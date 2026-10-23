@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+<!-- Slack Water icons, 16px grid. Use: <svg class="sw-icon" aria-hidden="true"><use href="icons.svg#i-rising"/></svg> -->
+<symbol fill="currentColor" id="i-rising" viewBox="0 0 16 16"><path d="M8 3 L13 11 H3 Z"/></symbol>
+<symbol fill="currentColor" id="i-falling" viewBox="0 0 16 16"><path d="M8 13 L3 5 H13 Z"/></symbol>
+<symbol fill="currentColor" id="i-moon" viewBox="0 0 16 16"><path d="M10.5 2.5a6 6 0 1 0 3 10.4A5 5 0 0 1 10.5 2.5Z"/></symbol>
+<symbol fill="currentColor" id="i-station" viewBox="0 0 16 16"><circle cx="8" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 11.5 V15" stroke="currentColor" stroke-width="1.6"/></symbol>
+<symbol fill="currentColor" id="i-tide" viewBox="0 0 16 16"><path d="M1 9 C3 5 5 5 8 9 C11 13 13 13 15 9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+<symbol fill="currentColor" id="i-alert" viewBox="0 0 16 16"><path d="M8 1.8a4.2 4.2 0 0 0-4.2 4.2v3.2L2.5 11.5h11L12.2 9.2V6A4.2 4.2 0 0 0 8 1.8Z M6.2 13a1.8 1.8 0 0 0 3.6 0Z"/></symbol>
+<symbol fill="currentColor" id="i-pause" viewBox="0 0 16 16"><path d="M4 3h3v10H4zM9 3h3v10H9z"/></symbol>
+<symbol fill="currentColor" id="i-play" viewBox="0 0 16 16"><path d="M4.5 2.8 13 8l-8.5 5.2Z"/></symbol>
+</svg>
