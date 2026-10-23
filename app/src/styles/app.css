@@ -458,3 +458,10 @@ tide-list {
 .sw-field__input::-webkit-search-cancel-button {
   appearance: none;
 }
+
+/* Link to the month screen: quiet, under the day's table */
+.month-link {
+  align-self: flex-start;
+  min-height: var(--size-touch);
+  margin-inline-start: calc(var(--space-3) * -1);
+}

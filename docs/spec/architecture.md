@@ -38,6 +38,9 @@ app/
       tide-next.ts           <tide-next>    hero: next turn + countdown
       tide-chart.ts          <tide-chart>   SVG curve, flood fill, now marker
       tide-list.ts           <tide-list>    <ol> of the day's turns
+    month/                   Month screen (?view=month), its own lazy chunk + CSS:
+      month-view.ts          Screen controller: own header/main, 34-day fetch, offline fallback
+      tide-month.ts          <tide-month>   30-day table, one row per station-local day
       tide-days.ts           <tide-days>    radio-group day picker
       tide-station-search.ts <tide-station-search> dialog + combobox
   tests/

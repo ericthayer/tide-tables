@@ -40,9 +40,9 @@
       </defs>
     </svg>
 
-    <a class="skip" href="#tides">Skip to tides</a>
+    <a class="skip" id="skip" href="#tides">Skip to tides</a>
 
-    <header class="bar">
+    <header class="bar" id="today-bar">
       <p class="brand title-3"><svg class="brand-mark" viewBox="0 0 100 100" aria-hidden="true"><use href="#mark" /></svg><span class="brand-name">Slack Water</span></p>
       <div class="bar-actions">
         <button type="button" class="sw-button icon-btn bar-btn" id="settings-trigger" aria-haspopup="dialog" aria-label="Settings">
@@ -75,6 +75,7 @@
         <tide-days></tide-days>
         <tide-chart></tide-chart>
         <tide-list></tide-list>
+        <a class="sw-button sw-button--quiet month-link" id="month-link" href="?view=month">Next 30 days</a>
       </section>
 
       <div class="note" id="note" hidden>

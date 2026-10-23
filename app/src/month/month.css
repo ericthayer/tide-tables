@@ -1,0 +1,101 @@
+/* Month view: a 30-day almanac table. Loaded with the month chunk only. */
+.back-btn {
+  min-height: var(--size-touch);
+  padding: 0 var(--space-3) 0 var(--space-2);
+  font-size: 0.9375rem;
+  gap: var(--space-1);
+}
+.back-btn .sw-icon {
+  width: 16px;
+  height: 16px;
+}
+.month-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding-bottom: var(--space-6);
+}
+.month-screen:focus {
+  outline: none;
+}
+tide-month {
+  display: block;
+}
+.month {
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+}
+.month th,
+.month td {
+  padding: 10px 0;
+  text-align: left;
+  vertical-align: top;
+}
+.month td:last-child {
+  text-align: left; /* sw-table right-aligns its last column; here every turn lines up */
+}
+.month thead th {
+  font: 500 0.6875rem/1rem var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  border-top: 0;
+}
+.month tbody th {
+  font-weight: 500;
+  white-space: nowrap;
+  padding-right: var(--space-2);
+}
+.month-turn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.month-turn .sw-icon {
+  width: 8px;
+  height: 8px;
+  flex: none;
+}
+.month-height {
+  display: block;
+  padding-left: 12px;
+  color: var(--ink-muted);
+}
+.month td.is-past {
+  color: var(--ink-muted);
+}
+/* Red means now: only the next turn. */
+.month td.is-next,
+.month td.is-next .month-height {
+  color: var(--signal);
+}
+.month-key {
+  display: flex;
+  gap: var(--space-3);
+  color: var(--ink-muted);
+}
+
+@media print {
+  .month-bar,
+  .skip,
+  .month-screen .note {
+    display: none !important;
+  }
+  .body {
+    background: #fff;
+    color: #000;
+  }
+  .month-screen,
+  .month-screen .station-name {
+    font-family: var(--font-mono);
+  }
+  .month tr {
+    break-inside: avoid;
+  }
+  .month td.is-next,
+  .month td.is-next .month-height,
+  .month td.is-past,
+  .month-height {
+    color: #000;
+  }
+}
