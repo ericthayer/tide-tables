@@ -9,7 +9,7 @@ import { daylightText, dayLongLabel, deviceClock } from './domain/format';
 import { moonPhase } from './domain/moon';
 import { sunDay } from './domain/sun';
 import { addDays, dayBounds, dayKeyAt, eventsForDay, nextTurn } from './domain/tide-math';
-import type { DayKey, Station, TideErrorReason } from './domain/types';
+import type { DayKey, Station, TideErrorReason, TideEvent } from './domain/types';
 import { createStore, readUrl, writeUrl, type AppState, type View } from './state/store';
 import './components/tide-next';
 import './components/tide-days';
@@ -21,7 +21,7 @@ import type { TideChart } from './components/tide-chart';
 import type { DayChangeEvent, TideDays } from './components/tide-days';
 import type { TideList } from './components/tide-list';
 import type { TideNext } from './components/tide-next';
-import type { StationPickEvent, TideStationSearch } from './components/tide-station-search';
+import type { StationActionEvent, StationPickEvent, TideStationSearch } from './components/tide-station-search';
 import type { SettingsChangeEvent, TideSettings } from './components/tide-settings';
 import type { MonthView } from './month/month-view';
 import type { DepthChangeEvent, DepthData, TideDepth } from './components/tide-depth';
@@ -125,6 +125,13 @@ const ERROR_COPY: Record<TideErrorReason, string> = {
   'bad-response': 'couldn’t be read. Try again in a moment.',
 };
 
+/** The seven station-local days from today, and the turns that fall in them. */
+function weekOf(events: readonly TideEvent[], now: number): { today: DayKey; days: DayKey[]; week: TideEvent[] } {
+  const today = dayKeyAt(events, now);
+  const days: DayKey[] = Array.from({ length: DAYS }, (_, i) => addDays(today, i));
+  return { today, days, week: events.filter((e) => days.some((d) => e.local.startsWith(d))) };
+}
+
 function render(state: AppState, prev: AppState | undefined): void {
   const { station, load: ld, now, units } = state;
   ui.name.textContent = station.name;
@@ -151,11 +158,9 @@ function render(state: AppState, prev: AppState | undefined): void {
   }
 
   const { events } = ld;
-  const today = dayKeyAt(events, now);
-  const days: DayKey[] = Array.from({ length: DAYS }, (_, i) => addDays(today, i));
+  const { today, days, week } = weekOf(events, now);
   const selected = state.day && days.includes(state.day) ? state.day : today;
   const next = nextTurn(events, now);
-  const week = events.filter((e) => days.some((d) => e.local.startsWith(d)));
   const heights = (week.length ? week : events).map((e) => e.height);
 
   ui.next.data = next ? { kind: 'ready', event: next, now, units } : { kind: 'none' };
@@ -206,6 +211,25 @@ function render(state: AppState, prev: AppState | undefined): void {
   const stationChanged = prev?.load.status !== 'ready' || prev.load.station.id !== station.id;
   if (stationChanged) announce(`Showing tides for ${ld.station.name}, ${selected === today ? 'today' : dayLongLabel(selected)}.`);
   else if (prev && prev.day !== state.day) announce(selected === today ? `Today, ${dayLongLabel(selected)}` : dayLongLabel(selected));
+}
+
+/** Share the station (and chosen day), or save the week's tides as a calendar file. Code loads on first use. */
+async function stationAction(action: 'share' | 'calendar'): Promise<void> {
+  const { station, day, load: ld, units, now } = store.get();
+  try {
+    const { shareLink, downloadCalendar } = await import('./data/share');
+    if (action === 'share') {
+      const r = await shareLink(`${station.name} tides`, new URL(writeUrl(BASE, station.id, day), location.origin).href);
+      ui.search.report(r.kind === 'cancelled' ? '' : r.message);
+      return;
+    }
+    if (ld.status !== 'ready') return;
+    const { today, week } = weekOf(ld.events, now);
+    const url = new URL(writeUrl(BASE, station.id, null), location.origin).href;
+    ui.search.report(downloadCalendar({ station, events: week, units, now: Date.now(), url }, today).message);
+  } catch {
+    ui.search.report('That didn’t work. Check your connection and try again.');
+  }
 }
 
 /** Run a visual state change inside a view transition when allowed. */
@@ -279,8 +303,9 @@ ui.trigger.addEventListener('click', () => {
   ui.search.recents = st.recents;
   ui.search.saved = st.saved;
   ui.search.homeId = st.home?.id;
-  ui.search.open(ui.trigger);
+  ui.search.open(ui.trigger, { name: st.station.name, canCalendar: st.load.status === 'ready' });
 });
+ui.search.addEventListener('station-action', (e) => void stationAction((e as StationActionEvent).detail));
 ui.home.addEventListener('click', () => {
   const { station, home } = store.get();
   const wasHome = home?.id === station.id;

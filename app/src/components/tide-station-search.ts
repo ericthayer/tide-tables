@@ -5,6 +5,15 @@ import type { Station } from '../domain/types';
 import { h, icon } from './dom';
 
 export type StationPickEvent = CustomEvent<Station>;
+export type StationAction = 'share' | 'calendar';
+export type StationActionEvent = CustomEvent<StationAction>;
+
+/** The station on screen, for the sheet's "This station" actions. */
+export interface CurrentStation {
+  readonly name: string;
+  /** False until tides are loaded: there is nothing to put in a calendar yet. */
+  readonly canCalendar: boolean;
+}
 
 const MAX_RESULTS = 50;
 const label = (st: Station): string => (st.state ? `${st.name}, ${st.state}` : st.name);
@@ -12,6 +21,8 @@ const label = (st: Station): string => (st.state ? `${st.name}, ${st.state}` : s
 /**
  * Station picker: a modal <dialog> holding a WAI-ARIA 1.2 combobox with a
  * listbox popup, saved and recent stations, and an opt-in "Use my location".
+ * It also carries the current station's Share and Add to calendar actions, so
+ * today's screen stays free of them.
  */
 export class TideStationSearch extends HTMLElement {
   #dialog!: HTMLDialogElement;
@@ -19,6 +30,8 @@ export class TideStationSearch extends HTMLElement {
   #list!: HTMLUListElement;
   #status!: HTMLParagraphElement;
   #recents!: HTMLElement;
+  #currentName!: HTMLParagraphElement;
+  #calendar!: HTMLButtonElement;
   #results: Station[] = [];
   #active = -1;
   #opener: HTMLElement | null = null;
@@ -47,6 +60,15 @@ export class TideStationSearch extends HTMLElement {
     this.#list = h('ul', { id: 'station-results', role: 'listbox', class: 'results', 'aria-label': 'Stations', hidden: true });
     this.#status = h('p', { class: 'sw-field__help', id: 'station-help', role: 'status' });
     this.#recents = h('div', { class: 'recents' });
+    this.#currentName = h('p', { class: 'caption current-name' });
+    const share = h('button', { type: 'button', class: 'sw-button sw-button--outline' }, icon('i-share', 'sw-icon'), 'Share');
+    this.#calendar = h('button', { type: 'button', class: 'sw-button sw-button--outline' }, icon('i-calendar', 'sw-icon'), 'Add week to calendar');
+    const current = h(
+      'section',
+      { class: 'current', 'aria-labelledby': 'current-h' },
+      h('div', { class: 'current-head' }, h('h3', { id: 'current-h', class: 'label' }, 'This station'), this.#currentName),
+      h('div', { class: 'current-actions' }, share, this.#calendar),
+    );
     const close = h('button', { type: 'button', class: 'sw-button sw-button--quiet icon-btn', 'aria-label': 'Close' }, icon('i-close', 'sw-icon'));
     const locate = h('button', { type: 'button', class: 'sw-button sw-button--outline locate-btn' }, icon('i-pin', 'sw-icon'), 'Use my location');
 
@@ -54,6 +76,7 @@ export class TideStationSearch extends HTMLElement {
       'dialog',
       { class: 'sheet', 'aria-labelledby': 'search-h' },
       h('div', { class: 'sheet-head' }, h('h2', { id: 'search-h', class: 'title-2' }, 'Find a station'), close),
+      current,
       h(
         'form',
         { class: 'sw-field', role: 'search' },
@@ -83,10 +106,14 @@ export class TideStationSearch extends HTMLElement {
       if (li) this.#choose(this.#results[Number(li.dataset['i'])]);
     });
     locate.addEventListener('click', () => void this.#locate());
+    share.addEventListener('click', () => this.#act('share'));
+    this.#calendar.addEventListener('click', () => this.#act('calendar'));
   }
 
-  open(opener: HTMLElement): void {
+  open(opener: HTMLElement, current: CurrentStation): void {
     this.#opener = opener;
+    this.#currentName.textContent = current.name;
+    this.#calendar.hidden = !current.canCalendar;
     this.#input.value = '';
     this.#setResults([]);
     this.#say('');
@@ -209,6 +236,16 @@ export class TideStationSearch extends HTMLElement {
     } catch {
       this.#say('Couldn’t get your location. Search by name instead.');
     }
+  }
+
+  /** Show the outcome of a Share or calendar action on the sheet's status line; empty clears it. */
+  report(text: string): void {
+    this.#say(text);
+  }
+
+  #act(action: StationAction): void {
+    this.#say('');
+    this.dispatchEvent(new CustomEvent<StationAction>('station-action', { detail: action, bubbles: true }));
   }
 
   #choose(st: Station | undefined): void {
