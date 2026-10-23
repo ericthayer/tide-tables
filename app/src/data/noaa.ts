@@ -101,7 +101,7 @@ export function mergePairs(gmt: readonly RawPrediction[], local: readonly RawPre
   return out;
 }
 
-async function getJson(url: string, fetchImpl: typeof fetch, signal?: AbortSignal): Promise<{ body: unknown; res: Response }> {
+export async function getJson(url: string, fetchImpl: typeof fetch, signal?: AbortSignal): Promise<{ body: unknown; res: Response }> {
   let res: Response;
   try {
     res = await fetchImpl(url, signal ? { signal } : {});

@@ -57,3 +57,24 @@ export interface Depth {
   /** Above: launching, crossing a bar. Below: clamming, tide pools. */
   readonly dir: 'above' | 'below';
 }
+
+/** The NOAA current-prediction station nearest a tide station, from public/currents.json. */
+export interface CurrentStation {
+  readonly id: string;
+  readonly name: string;
+  /** Distance from the tide station, kilometres. */
+  readonly km: number;
+}
+
+/** Slack water, or the strongest flood or ebb between two slacks. */
+export type CurrentKind = 'slack' | 'flood' | 'ebb';
+
+/** One predicted current event. Shares TideEvent's clock fields so the curve maths applies. */
+export interface CurrentEvent {
+  readonly at: number;
+  readonly local: string;
+  readonly offsetMin: number;
+  readonly kind: CurrentKind;
+  /** Speed along the channel in knots: positive floods, negative ebbs. */
+  readonly height: number;
+}

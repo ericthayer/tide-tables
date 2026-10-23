@@ -43,7 +43,7 @@ cd app
 npm ci
 npm run dev        # http://localhost:5173/app/
 npm run check      # typecheck, unit tests, build, size budget, e2e + axe
-npm run stations   # refresh public/stations.json from NOAA
+npm run stations   # refresh public/stations.json and public/currents.json from NOAA
 ```
 
 Netlify builds the app into `dist/app/` and serves the brand board at `/` as before; the app lives at `/app/`.

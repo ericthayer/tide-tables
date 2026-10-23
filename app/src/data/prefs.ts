@@ -28,12 +28,14 @@ export interface Prefs {
    * station ids are digits, and JS orders integer-like keys numerically, not by age.
    */
   readonly depths: readonly StationDepth[];
+  /** Keep the currents section open across visits. */
+  readonly showCurrents: boolean;
 }
 
 type Read = Pick<Storage, 'getItem'> | undefined;
 type ReadWrite = Pick<Storage, 'getItem' | 'setItem'> | undefined;
 
-export const DEFAULT_PREFS: Prefs = { recents: [], saved: [], units: 'ft', theme: 'system', depths: [] };
+export const DEFAULT_PREFS: Prefs = { recents: [], saved: [], units: 'ft', theme: 'system', depths: [], showCurrents: false };
 
 function isStation(x: unknown): x is Station {
   if (typeof x !== 'object' || x === null) return false;
@@ -77,6 +79,7 @@ export function readPrefs(storage: Read = globalThis.localStorage): Prefs {
       units: r['units'] === 'm' ? 'm' : 'ft',
       theme: r['theme'] === 'light' || r['theme'] === 'dark' ? r['theme'] : 'system',
       depths: depths(r['depths']),
+      showCurrents: r['showCurrents'] === true,
     };
   } catch {
     return DEFAULT_PREFS;
@@ -125,4 +128,8 @@ export function setDepth(stationId: string, depth: Depth | null, storage: ReadWr
     const rest = p.depths.filter((d) => d.id !== stationId);
     return { ...p, depths: depth ? [...rest, { id: stationId, m: depth.m, dir: depth.dir }].slice(-MAX_DEPTHS) : rest };
   }, storage);
+}
+
+export function setShowCurrents(showCurrents: boolean, storage: ReadWrite = globalThis.localStorage): Prefs {
+  return update((p) => ({ ...p, showCurrents }), storage);
 }

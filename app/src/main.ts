@@ -2,14 +2,16 @@ import '../../design/tokens.css';
 import '../../design/components.css';
 import './styles/app.css';
 import { fetchTides, TideError } from './data/noaa';
-import { readPrefs, rememberStation, setDepth, setHome, setTheme, setUnits } from './data/prefs';
+import { currentStationFor, stationLine } from './data/currents-index';
+import { readPrefs, rememberStation, setDepth, setHome, setShowCurrents, setTheme, setUnits } from './data/prefs';
 import { applyTheme } from './data/theme';
 import { DEFAULT_STATION, loadStations } from './data/stations';
 import { daylightText, dayLongLabel, deviceClock } from './domain/format';
 import { moonPhase } from './domain/moon';
 import { sunDay } from './domain/sun';
-import { addDays, dayBounds, dayKeyAt, eventsForDay, nextTurn } from './domain/tide-math';
+import { addDays, dayBounds, dayKeyAt, eventsForDay, nextTurn, SLACK_MS } from './domain/tide-math';
 import type { DayKey, Station, TideErrorReason, TideEvent } from './domain/types';
+import type { CurrentsInput, TideCurrents } from './currents/tide-currents';
 import { createStore, readUrl, writeUrl, type AppState, type View } from './state/store';
 import './components/tide-next';
 import './components/tide-days';
@@ -28,8 +30,6 @@ import type { DepthChangeEvent, DepthData, TideDepth } from './components/tide-d
 
 const BASE = import.meta.env.BASE_URL;
 const DAYS = 7;
-/** Slack water: the window around a turn when the stream is (nearly) still. */
-const SLACK_MS = 20 * 60_000;
 let drawnFor = '';
 
 const $ = <T extends Element>(sel: string): T => {
@@ -60,6 +60,10 @@ const ui = {
   tides: $<HTMLElement>('#tides'),
   skip: $<HTMLAnchorElement>('#skip'),
   depth: $<TideDepth>('tide-depth'),
+  currents: $<HTMLElement>('#currents'),
+  currentsToggle: $<HTMLButtonElement>('#currents-toggle'),
+  currentsStation: $<HTMLParagraphElement>('#currents-station'),
+  currentsBody: $<HTMLDivElement>('#currents-body'),
 };
 
 /** The depth window is code most people never run: fetch it on first use or when a station has one. */
@@ -92,6 +96,8 @@ const store = createStore({
   units: prefs.units,
   theme: prefs.theme,
   depths: prefs.depths,
+  currents: undefined,
+  showCurrents: prefs.showCurrents,
 });
 
 let controller: AbortController | undefined;
@@ -107,11 +113,48 @@ async function load(station: Station): Promise<void> {
     // Saved data that no longer reaches past now is as good as none.
     if (r.stale && !nextTurn(r.events, Date.now())) throw new TideError('network', 'Saved tides have run out');
     store.set({ load: { status: 'ready', station, events: r.events, fetchedAt: r.fetchedAt, stale: r.stale }, now: Date.now() });
+    lookupCurrents(station);
   } catch (err) {
     if (ctrl.signal.aborted) return;
     const reason: TideErrorReason = err instanceof TideError ? err.reason : 'bad-response';
     store.set({ load: { status: 'error', station, reason } });
   }
+}
+
+/** Find the paired current station once the tides are on screen; the index is fetched lazily. */
+function lookupCurrents(station: Station): void {
+  if (store.get().currents?.tideId === station.id) return;
+  const run = (): void =>
+    void currentStationFor(station.id)
+      .then((c) => {
+        if (store.get().station.id === station.id) store.set({ currents: { tideId: station.id, station: c } });
+      })
+      .catch(() => undefined);
+  if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 2000 });
+  else setTimeout(run, 0);
+}
+
+let currentsEl: TideCurrents | undefined;
+let currentsInput: CurrentsInput | undefined;
+let currentsImport: Promise<void> | undefined;
+
+/** The currents panel's code loads the first time someone opens it. */
+function showCurrents(input: CurrentsInput): void {
+  currentsInput = input;
+  if (currentsEl) {
+    currentsEl.data = input;
+    return;
+  }
+  currentsImport ??= import('./currents/tide-currents')
+    .then((m) => {
+      currentsEl = new m.TideCurrents();
+      ui.currentsBody.replaceChildren(currentsEl);
+      if (currentsInput) currentsEl.data = currentsInput;
+    })
+    .catch(() => {
+      currentsImport = undefined;
+      ui.currentsBody.replaceChildren(Object.assign(document.createElement('p'), { className: 'body-sm empty', textContent: 'Currents couldn’t load. Check your connection.' }));
+    });
 }
 
 function announce(text: string): void {
@@ -150,6 +193,7 @@ function render(state: AppState, prev: AppState | undefined): void {
     // Never leave the previous station's curve and table under this station's name.
     if (isError) {
       ui.day.hidden = true;
+      ui.currents.hidden = true;
       ui.next.data = { kind: 'none' };
       ui.noteText.textContent = `Tides for ${station.name} ${ERROR_COPY[ld.reason]}`;
       if (prev?.load.status !== 'error') announce(ui.noteText.textContent);
@@ -202,6 +246,15 @@ function render(state: AppState, prev: AppState | undefined): void {
     moon: moonPhase((bounds.start + bounds.end) / 2),
     south: station.lat < 0,
   };
+
+  const pair = state.currents?.tideId === station.id ? state.currents.station : undefined;
+  ui.currents.hidden = !pair;
+  if (pair) {
+    ui.currentsStation.textContent = stationLine(pair);
+    ui.currentsToggle.setAttribute('aria-expanded', String(state.showCurrents));
+    ui.currentsBody.hidden = !state.showCurrents;
+    if (state.showCurrents) showCurrents({ station: pair, tides: events, day: selected, today, now });
+  }
 
   ui.day.hidden = false;
   ui.retry.hidden = true;
@@ -335,6 +388,11 @@ ui.depth.addEventListener('click', (e) => {
 ui.depth.addEventListener('depth-change', (e) => {
   const depth = (e as DepthChangeEvent).detail;
   store.set({ depths: setDepth(store.get().station.id, depth).depths });
+});
+ui.currentsToggle.addEventListener('click', () => {
+  const open = !store.get().showCurrents;
+  setShowCurrents(open);
+  store.set({ showCurrents: open });
 });
 ui.search.addEventListener('station-pick', (e) => selectStation((e as StationPickEvent).detail));
 ui.retry.addEventListener('click', () => void load(store.get().station));

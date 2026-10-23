@@ -84,14 +84,22 @@ URL (?station, ?day) ──► store ◄── prefs (localStorage)
 - **Curve:** between consecutive events `a`, `b`: `h(t) = (a.h + b.h)/2 + (a.h − b.h)/2 · cos(π · (t − a.t)/(b.t − a.t))`. Exact at every turn, zero slope at turns (that's the "slack").
 - Subordinate (`S`) stations only publish hi/lo, which is why we never request the 6-minute series.
 
+## Current data (feature 10, lazy)
+
+- NOAA publishes current predictions at a separate network (~2,575 stations of type `H`/`S`; the ~240 `W` "weak and variable" stations have none). Nothing links a current station to a tide station, so `scripts/build-currents.mjs` pairs each tide station with the nearest current station **within 10 km** and writes `public/currents.json` (`{ tideId: [currentId, name, km] }`, 1,891 of 3,502 tide stations, ~22 KB brotli). Run it after `npm run stations` (the `stations` script runs both).
+- Verified 2026-10-23: `product=currents_predictions&interval=MAX_SLACK&units=english` is CORS-open, accepts `range=264`, and returns `{ current_predictions: { cp: [{ Type: slack|flood|ebb, Time, Velocity_Major (kn, ebb negative), meanFloodDir, meanEbbDir }] } }`; 30/30 randomly sampled stations answered. No `bin` is passed, so NOAA picks the station's default bin.
+- Only `time_zone=gmt` is requested. A paired current station is ≤10 km from its tide station, so it borrows that station's UTC offsets (`offsetAt(tides, at)`) instead of a second `lst_ldt` request.
+- After tides render, `main.ts` fetches `currents.json` at idle (`requestIdleCallback`, SW-cached like `stations.json`). The section appears only for a paired station and always names the current station and its distance in nmi. The panel (`src/currents/`) is a separate chunk imported the first time the section is opened; whether it is open is kept in prefs (`showCurrents`).
+- The curve reuses the tide cosine maths with speed in place of height (flood positive, ebb negative, slack forced to 0), so it crosses zero at each slack.
+
 ## Offline and caching
 
-- `sw.js` lives in `public/`, so Vite does not see hashed filenames. A post-build script (`scripts/postbuild.mjs`) walks `dist/app/` and writes the precache list (everything except `sw.js`, `stations.json` and the icons) plus a content-hash cache version over all built files into `dist/app/sw.js`. Without this the precache list is wrong after every build.
+- `sw.js` lives in `public/`, so Vite does not see hashed filenames. A post-build script (`scripts/postbuild.mjs`) walks `dist/app/` and writes the precache list (everything except `sw.js`, `stations.json`, `currents.json` and the icons) plus a content-hash cache version over all built files into `dist/app/sw.js`. Without this the precache list is wrong after every build.
 - `sw.js` precaches the shell (`index.html`, hashed JS/CSS, fonts, icons) under that versioned cache name; old caches are deleted on `activate`. Served from `/app/sw.js`, so its default scope is `/app/` (no `Service-Worker-Allowed` header needed). Registered with `{ scope: '/app/' }`; `/app` without the slash is outside scope, so Netlify must redirect `/app` → `/app/` (it does by default for directories; add an explicit 301 to be safe).
 - Navigations within scope (any `?station=…&day=…`) are answered **cache-first** with the precached `index.html`. New deploys arrive through the worker update: `sw.js` is served `no-cache`, a changed version installs, `skipWaiting()` + `clients.claim()`, and the next launch gets the new shell.
 - NOAA requests: **network-first with a 4 s timeout, falling back to cache**, in a `tides-v1` cache capped at 20 entries. Predictions are deterministic, so freshness is not the issue; **coverage** is. The cache key is normalised to `station + time_zone` (strip `begin_date`/`range`), otherwise tomorrow's URL never matches yesterday's cached response and offline fails the next day. The SW stores a synthetic `x-sw-fetched-at` header on the cached copy and adds `x-sw-stale: 1` when it serves that copy; the page reads them to show "Showing saved tides from 14:02" and to set `stale: true`. If saved data has no turn after now, the page shows the AC8 error state (without the saved time). The 4 s timeout applies only when a cached copy exists; a first load with no cache waits for the network.
 - Offline detection is by fetch failure/timeout, never `navigator.onLine` (unreliable, especially on iOS).
-- `stations.json`: cache-first in the **versioned shell cache** (so a deploy replaces it), fetched lazily, not precached.
+- `stations.json` and `currents.json`: cache-first in the **versioned shell cache** (so a deploy replaces it), fetched lazily, not precached.
 
 ## Platform notes (iOS / Netlify)
 

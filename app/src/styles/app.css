@@ -400,6 +400,61 @@ tide-list {
   color: var(--ink-muted);
 }
 
+/* Currents: a disclosure under the tide table, shown only when a current station is near */
+.currents {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-2);
+}
+.currents-h {
+  margin: 0;
+}
+.currents-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: var(--size-touch);
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+.currents-chev {
+  width: 20px;
+  height: 20px;
+  transition: transform var(--dur-swell) var(--ease-settle);
+}
+.currents-toggle[aria-expanded='true'] .currents-chev {
+  transform: rotate(180deg);
+}
+.currents-station {
+  color: var(--ink-muted);
+}
+.currents-body {
+  margin-top: var(--space-4);
+}
+tide-currents {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.currents-dir {
+  margin-top: calc(var(--space-3) * -1);
+  color: var(--ink-muted);
+}
+.currents-chart {
+  aspect-ratio: 240 / 98;
+}
+@media (prefers-reduced-motion: reduce) {
+  .currents-chev {
+    transition: none;
+  }
+}
+
 /* Offline / error note: neutral, never red */
 .note {
   display: flex;
