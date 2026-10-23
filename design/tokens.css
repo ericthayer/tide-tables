@@ -1,0 +1,123 @@
+/* Slack Water — generated from tokens.json by build-tokens.mjs. Do not edit. */
+@font-face { font-family: "Cabinet Grotesk"; src: url("./fonts/CabinetGrotesk-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Cabinet Grotesk"; src: url("./fonts/CabinetGrotesk-Bold.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Cabinet Grotesk"; src: url("./fonts/CabinetGrotesk-Extrabold.woff2") format("woff2"); font-weight: 800; font-style: normal; font-display: swap; }
+@font-face { font-family: "Geist Mono"; src: url("./fonts/GeistMono-Latin.woff2") format("woff2"); font-weight: 400 500; font-style: normal; font-display: swap; }
+:root {
+  color-scheme: light;
+  --almanac: #f3eee3;
+  --paper: #e8e1d1;
+  --sounding: #14213d;
+  --sounding-deep: #0e182e;
+  --fog: #b9b4a8;
+  --signal-red: #c8102e;
+  --signal-rose: #f07a8c;
+  --bg: var(--almanac);
+  --surface: var(--paper);
+  --surface-field: var(--almanac);
+  --ink: var(--sounding);
+  --ink-muted: #575e6f;
+  --line: rgba(20,33,61,0.12);
+  --line-strong: #787d88;
+  --water: rgba(20,33,61,0.08);
+  --signal: var(--signal-red);
+  --signal-fill: var(--signal-red);
+  --on-signal: var(--almanac);
+  --fill-strong: var(--sounding);
+  --on-fill-strong: var(--almanac);
+  --focus: var(--sounding);
+  --depth-1: 0 0 0 1px rgba(20,33,61,0.12);
+  --depth-2: 0 18px 40px -16px rgba(20,33,61,0.35);
+  --depth-3: 0 30px 60px -20px rgba(20,33,61,0.45);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --radius-xs: 2px;
+  --radius-sm: 5px;
+  --radius-md: 12px;
+  --radius-lg: 30px;
+  --radius-pill: 999px;
+  --dur-ripple: 120ms;
+  --dur-swell: 240ms;
+  --dur-surge: 500ms;
+  --dur-current: 700ms;
+  --dur-tide: 1200ms;
+  --dur-slack: 4000ms;
+  --dur-ticker: 48s;
+  --ease-settle: cubic-bezier(0.2,0.7,0.2,1);
+  --ease-tide: cubic-bezier(0.37,0,0.63,1);
+  --ease-ebb: cubic-bezier(0.5,0,0.75,0);
+  --ease-linear: linear;
+  --size-touch: 44px;
+  --size-chip: 36px;
+  --size-control: 48px;
+  --size-field: 52px;
+  --size-tabbar: 64px;
+  --font-display: "Cabinet Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: var(--sounding-deep);
+    --surface: var(--sounding);
+    --surface-field: var(--sounding-deep);
+    --ink: var(--almanac);
+    --ink-muted: var(--fog);
+    --line: rgba(243,238,227,0.14);
+    --line-strong: #75787f;
+    --water: rgba(243,238,227,0.10);
+    --signal: var(--signal-rose);
+    --fill-strong: var(--almanac);
+    --on-fill-strong: var(--sounding);
+    --focus: var(--almanac);
+    --depth-1: 0 0 0 1px rgba(243,238,227,0.14);
+    --depth-2: 0 18px 40px -16px rgba(0,0,0,0.45);
+    --depth-3: 0 0 0 1px rgba(243,238,227,0.14), 0 30px 60px -20px rgba(0,0,0,0.6);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: var(--sounding-deep);
+  --surface: var(--sounding);
+  --surface-field: var(--sounding-deep);
+  --ink: var(--almanac);
+  --ink-muted: var(--fog);
+  --line: rgba(243,238,227,0.14);
+  --line-strong: #75787f;
+  --water: rgba(243,238,227,0.10);
+  --signal: var(--signal-rose);
+  --fill-strong: var(--almanac);
+  --on-fill-strong: var(--sounding);
+  --focus: var(--almanac);
+  --depth-1: 0 0 0 1px rgba(243,238,227,0.14);
+  --depth-2: 0 18px 40px -16px rgba(0,0,0,0.45);
+  --depth-3: 0 0 0 1px rgba(243,238,227,0.14), 0 30px 60px -20px rgba(0,0,0,0.6);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-swell: 0ms;
+    --dur-surge: 0ms;
+    --dur-current: 0ms;
+    --dur-tide: 0ms;
+    --dur-slack: 0ms;
+    --dur-ticker: 0ms;
+  }
+}
+.wordmark { font-family: var(--font-display); font-size: 3.5rem; line-height: 0.9; font-weight: 800; letter-spacing: -0.055em; }
+.title-1 { font-family: var(--font-display); font-size: 2.125rem; line-height: 2.25rem; font-weight: 800; letter-spacing: -0.04em; }
+.title-2 { font-family: var(--font-display); font-size: 1.625rem; line-height: 1.875rem; font-weight: 800; letter-spacing: -0.03em; }
+.title-3 { font-family: var(--font-display); font-size: 1.25rem; line-height: 1.5rem; font-weight: 700; letter-spacing: -0.01em; }
+.body-lg { font-family: var(--font-display); font-size: 1.1875rem; line-height: 1.75rem; font-weight: 500; }
+.body { font-family: var(--font-display); font-size: 1.0625rem; line-height: 1.5rem; font-weight: 500; }
+.body-sm { font-family: var(--font-display); font-size: 0.9375rem; line-height: 1.25rem; font-weight: 500; }
+.readout-xl { font-family: var(--font-mono); font-size: 3.5rem; line-height: 1; font-weight: 500; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.readout { font-family: var(--font-mono); font-size: 1.75rem; line-height: 2rem; font-weight: 500; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.data { font-family: var(--font-mono); font-size: 0.9375rem; line-height: 1.25rem; font-weight: 400; font-variant-numeric: tabular-nums; }
+.label { font-family: var(--font-mono); font-size: 0.75rem; line-height: 1rem; font-weight: 500; letter-spacing: 0.12em; font-variant-numeric: tabular-nums; text-transform: uppercase; }
+.caption { font-family: var(--font-mono); font-size: 0.75rem; line-height: 1rem; font-weight: 400; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
